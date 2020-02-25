@@ -21,10 +21,8 @@ int main(int argc, string argv[])
         }
     }
 
-    //convert key from char[] to int
+    //normalizing the key (only 26 letters in the alphabet)
     int key = atoi(argv[1]);
-    
-    //modulo of the key (only 26 letters in the alphabet)
     if (key > 26)
     {
         key = key % 26;
@@ -42,10 +40,10 @@ int main(int argc, string argv[])
             printf("%c", p[i]);
             continue;
         }
-        
+
         //applying the cipher
         int c = (int) p[i] + key;
-        
+
         //wrap around the alphabet keeping the case
         if ((p[i] <= 90 && c > 90) || (p[i] >= 97 && c > 122))
         {
