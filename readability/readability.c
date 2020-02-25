@@ -1,19 +1,24 @@
 #include <stdio.h>
 #include <cs50.h>
-#include <ctype.h>
+#include <ctype.h> //may exclude in future using ASCII codes
 #include <math.h>
 
-int counters(string text);
+int counters(string s);
 
 int main(void)
 {
     string text = get_string("Text: ");
+    
+    //check for cooperation
     if (text == NULL)
     {
         return 1;
     }
-    //printf("%s\n", text);
+    
+    //execute the readability algorithm
     int n = counters(text);
+    
+    //print the results of the algorithm
     if (n < 1)
     {
         printf("Before Grade 1\n");
@@ -30,6 +35,7 @@ int main(void)
     return 0;
 }
 
+//count letters, words and sentences
 int counters(string s)
 {
     int l_count = 0;
@@ -41,22 +47,29 @@ int counters(string s)
         {
             l_count++;
         }
-        else if (isspace(s[i]) && isalpha(s[i + 1]))
+        
+        //count all words after spaces and " (the first word is already included)
+        else if ((isspace(s[i]) || s[i] == '"') && isalpha(s[i + 1]))
         {
             w_count++;
         }
+        
+        //each sentence has a finish mark
         else if (s[i] == '.' || s[i] == '!' || s[i] == '?')
         {
             s_count++;
         }
     }
+   
+    //debug block ;)
     //printf("%i letters\n", l_count);
     //printf("%i words\n", w_count);
     //printf("%i sentences\n", s_count);
+    
+    //algorithm math
     float l = (float) l_count / w_count * 100;
-    //printf("%f", l);
     float se = (float) s_count / w_count * 100;
-    printf("%f", 0.0588 * l - 0.296 * se - 15.8);
+    //printf("%f\n", 0.0588 * l - 0.296 * se - 15.8);
     int index = round(0.0588 * l - 0.296 * se - 15.8);
     return index;
 }
