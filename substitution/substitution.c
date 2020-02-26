@@ -58,14 +58,14 @@ int main(int argc, string argv[])
         //cipher for uppercase
         if (isupper(p[i]))
         {
-            int position = (int) p[i] - 65;
+            int position = (int) p[i] - 65; //ASCII table is used
             printf("%c", toupper(k[position]));
         }
         
         //cipher for lowercase
         if (islower(p[i]))
         {
-            int position = (int) p[i] - 97;
+            int position = (int) p[i] - 97; //ASCII table is used
             printf("%c", tolower(k[position]));
         }
     }
