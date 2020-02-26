@@ -1,6 +1,8 @@
 #include <stdio.h>
-#include <cs50.h>
-#include <string.h>
+#include <cs50.h> //for string type
+#include <string.h> //for strlen
+#include <ctype.h> //for toupper, tolower
+#include <stdlib.h> //for malloc, free
 
 int main(int argc, string argv[])
 {
@@ -14,16 +16,31 @@ int main(int argc, string argv[])
     //shorten the name of the variable (not the best way, probably)
     string k = argv[1];
     
-    //check that all key symbols are letters
+    //needed for validation 2
+    string checker = malloc(27);
+    
+    //Validation 1: check that all key symbols are letters and prepare the second validation
     for (int i = 0; k[i] != '\0'; i++)
     {
-        if (k[i] < 65 || (k[i] > 90 && k[i] < 97) || k[i] > 122) 
+        if (!isalpha(k[i])) 
         {
-            printf("Usage: ./substitution key (26 letters)\n");
+            printf("Key must contain only alphabetic characters\n");
             return 1;
         }
-        //else if (TBD: convert key to uppercase)
+        
+        //Validation 2: check symbol for the uniqueness
+        for (int j = 0; j < strlen(checker); j++)
+        {
+            if (k[i] == checker[j])
+            {
+                printf("Key must contain all alphabetical characters exactly once\n");
+                return 1;
+            }
+        }
+        checker[i] = k[i];
     }
+    free(checker); //free memory
+    
     
     //main logic starts here
     string p = get_string("plaintext: ");
@@ -32,26 +49,29 @@ int main(int argc, string argv[])
     for (int i = 0; p[i] != '\0'; i++)
     {
         //check if iterable char is not a letter and skip
-        if (p[i] < 65 || (p[i] > 90 && p[i] < 97) || p[i] > 122)
+        if (!isalpha(p[i]))
         {
             printf("%c", p[i]);
             continue;
         }
         
         //cipher for uppercase
-        if (p[i] >= 65 && p[i] <= 90)
+        if (isupper(p[i]))
         {
             int position = (int) p[i] - 65;
-            printf("%c", k[position]);
+            printf("%c", toupper(k[position]));
         }
         
         //cipher for lowercase
-        if (p[i] >= 97 && p[i] <= 122)
+        if (islower(p[i]))
         {
             int position = (int) p[i] - 97;
-            printf("%c", k[position] );
+            printf("%c", tolower(k[position]));
         }
     }
     printf("\n");
     return 0;
 }
+
+
+
