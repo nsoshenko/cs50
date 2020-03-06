@@ -62,6 +62,7 @@ int main(int argc, string argv[])
         printf("Maximum number of voters is %i\n", MAX_VOTERS);
         return 3;
     }
+    //printf("Majority: %i\n", voter_count / 2);
 
     // Keep querying for votes
     for (int i = 0; i < voter_count; i++)
@@ -163,11 +164,11 @@ void tabulate(void)
 // Print the winner of the election, if there is one
 bool print_winner(void)
 {
-    for (int i = 0, majority = voter_count / 2; i < candidate_count; i++)
+    for (int i = 0, majority = (voter_count / 2) + 1; i < candidate_count; i++)
     {
         if (candidates[i].votes >= majority)
         {
-            printf("%s", candidates[i].name);
+            printf("%s\n", candidates[i].name);
             return true;
         }
     }
