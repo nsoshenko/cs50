@@ -200,14 +200,34 @@ void sort_pairs(void)
     }
 }
 
+//Function to detect cycles in adjacency matrix for lock_pairs
+bool is_cycle(int vertice, int root)
+{
+    if (locked[vertice][root] == true)
+            return true;
+            
+    for (int i = 0; i < candidate_count; i++)
+    {
+        if (locked[vertice][i] == true)
+            {
+                if (is_cycle(i, root))
+                    return true;
+            }
+    }
+    
+    return false;
+}
+
+
 // Lock pairs into the candidate graph in order, without creating cycles
 void lock_pairs(void)
 {
-    bool stack[candidate_count];
+    //bool stack[candidate_count];
 
     for (int i = 0; i < candidate_count; i++)
     {
-        if (stack[pairs[i].winner] && stack[pairs[i].loser])
+        //if (stack[pairs[i].winner] && stack[pairs[i].loser])
+        if (is_cycle(pairs[i].loser, pairs[i].winner))
         {
             printf("Potential cycle in pair %i\n", i + 1);
             continue;
@@ -215,8 +235,8 @@ void lock_pairs(void)
         else
         {
             locked[pairs[i].winner][pairs[i].loser] = true;
-            stack[pairs[i].winner] = true;
-            stack[pairs[i].loser] = true;
+            //stack[pairs[i].winner] = true;
+            //stack[pairs[i].loser] = true;
         }
     }
     return;
