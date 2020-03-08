@@ -130,5 +130,13 @@ void blur(int height, int width, RGBTRIPLE image[height][width])
             blurred[i][j].rgbtBlue = round(rgbtBlue / count);
         }
     }
+    
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+            image[i][j] = blurred[i][j];
+        }
+    }
     return;
 }
