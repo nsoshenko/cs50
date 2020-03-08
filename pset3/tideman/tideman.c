@@ -105,7 +105,7 @@ bool vote(int rank, string name, int ranks[])
         if (strcmp(name, candidates[i]) == 0)
         {
             ranks[rank] = i;
-            //printf("Rank %i: %i\n", rank + 1, i);  //Debug block
+            //printf("Rank %i: %i\n", rank + 1, i);  //Debug row
             return true;
         }
     }
@@ -132,7 +132,8 @@ void add_pairs(void)
     {
         for (int j = i; j < candidate_count; j++)
         {
-            int delta = preferences[i][j] - preferences[j][i];
+            int delta = preferences[i][j] - preferences[j][i]; //for fancier comparison
+
             if (delta == 0)
                 continue;
             else if (delta > 0)
@@ -150,6 +151,7 @@ void add_pairs(void)
         }
     }
 
+    //Print all the pairs on the current stage with their indices for debug
     for (int i = 0; i < pair_count; i++)
     {
         printf("Unsorted pair %i: %s[%i]-%s[%i]\n", i + 1, candidates[pairs[i].winner], pairs[i].winner, candidates[pairs[i].loser], pairs[i].loser);
@@ -158,7 +160,7 @@ void add_pairs(void)
     return;
 }
 
-//Function needed for further sort_pairs
+//Complementary function needed for further sort_pairs
 void swap(int *x, int *y)
 {
     printf("Before swap: %i-%i\n", *x, *y);
@@ -173,13 +175,16 @@ void swap(int *x, int *y)
 // Sort pairs in decreasing order by strength of victory
 void sort_pairs(void)
 {
-    int strength[pair_count];
+    int strength[pair_count]; //sorting is based on this array for fancier code
+
+    //Populate the strength array and print it for debug
     for (int i = 0; i < pair_count; i++)
     {
         strength[i] = preferences[pairs[i].winner][pairs[i].loser] - preferences[pairs[i].loser][pairs[i].winner];
         printf("Strength of pair %s-%s: %i\n", candidates[pairs[i].winner], candidates[pairs[i].loser], strength[i]);
     }
 
+    //Bubble sort of 2 arrays happens here (maybe we can try merge sort later for science)
     for (int i = pair_count - 1; i > 0; i--)
     {
         for (int j = 0; j < i; j++)
@@ -194,6 +199,7 @@ void sort_pairs(void)
         }
     }
 
+    //Print all the sorted pairs for debug
     for (int i = 0; i < pair_count; i++)
     {
         printf("Sorted pair %i: %s-%s\n", i + 1, candidates[pairs[i].winner], candidates[pairs[i].loser]);
@@ -203,9 +209,11 @@ void sort_pairs(void)
 //Function to detect cycles in adjacency matrix for lock_pairs
 bool is_cycle(int vertice, int root)
 {
+    //Base case of the cycle
     if (locked[vertice][root] == true)
             return true;
 
+    //Check all the paths from current vertice
     for (int i = 0; i < candidate_count; i++)
     {
         if (locked[vertice][i] == true)
@@ -215,6 +223,7 @@ bool is_cycle(int vertice, int root)
             }
     }
 
+    //No cycles have been found if we are still here
     return false;
 }
 
@@ -226,7 +235,7 @@ void lock_pairs(void)
     {
         if (is_cycle(pairs[i].loser, pairs[i].winner))
         {
-            printf("Potential cycle in pair %i\n", i + 1);
+            printf("Cycle is detected in pair %i\n", i + 1);
             continue;
         }
         else
@@ -240,7 +249,7 @@ void lock_pairs(void)
 // Print the winner of the election
 void print_winner(void)
 {
-    bool inner_break;
+    bool inner_break; //hack to break out of 2 loops
 
     for (int j = 0; j < candidate_count; j++)
     {
@@ -261,4 +270,3 @@ void print_winner(void)
     }
     return;
 }
-
