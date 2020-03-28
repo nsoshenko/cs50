@@ -6,10 +6,10 @@ int main(int argc, char *argv[])
 {
     // Check for proper usage
     if (argc != 2)
-        {
-            fprintf(stderr, "Usage: ./recover [raw file name]\n");
-            return 1;
-        }
+    {
+        fprintf(stderr, "Usage: ./recover [raw file name]\n");
+        return 1;
+    }
 
     // Remember filename
     char *infile = argv[1];
