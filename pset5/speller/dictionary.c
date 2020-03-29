@@ -3,9 +3,9 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
-extern int strcasecmp (const char *s1,  const char *s2);
+#include <string.h> // for strcpy
+#include <ctype.h> // for isalpha
+extern int strcasecmp (const char *s1,  const char *s2); //case insensitive comparison
 
 #include "dictionary.h"
 
@@ -31,13 +31,15 @@ bool check(const char *word)
 {
     //printf("Check does smth\n");
     int index = hash(word);
-    
-    for (node *cursor = table[index]->next; cursor != NULL; cursor = cursor->next)
+
+    node *cursor = table[index]->next;
+    while (cursor != NULL)
     {
         if (strcasecmp(cursor->word, word) == 0)
         {
             return true;
         }
+        cursor = cursor->next;
     }
     return false;
 }
@@ -87,14 +89,14 @@ bool load(const char *dictionary)
     // Allocate memory for hash table
     for (int i = 0; i < N; i++)
     {
-        table[i] = malloc(sizeof(node));
+        table[i] = calloc(1, sizeof(node));
     }
 
     // Read all lines until the end of file (assume line == word)
     while (fscanf(inptr, "%s", word) != EOF)
     {
         // Allocate new node
-        node *n = malloc(sizeof(node));
+        node *n = calloc(1, sizeof(node));
         if (n == NULL)
         {
             return false;
@@ -121,6 +123,7 @@ bool load(const char *dictionary)
         counter++;
     }
     free(word);
+    fclose(inptr);
     return true;
 }
 
@@ -134,27 +137,19 @@ unsigned int size(void)
 // Unloads dictionary from memory, returning true if successful else false
 bool unload(void)
 {
-    node *tmp = malloc(sizeof(node));
-    if (tmp == NULL)
-    {
-        return false;
-    }
+    node *tmp;
+
     for (int i = 0; i < N; i++)
     {
-        for (node *cursor = table[i]; cursor != NULL; cursor = cursor->next)
+        node *cursor = table[i];
+        while (cursor != NULL)
         {
-            if (!*cursor->word)
-            {
-                tmp = cursor;
-            }
-            else
-            {
-                free(tmp);
-                tmp = cursor;
-            }
+            tmp = cursor;
+            cursor = cursor->next;
+            free(tmp);
             //printf("Unload word is %s.\n", cursor->word);
         }
     }
-    free(tmp);
+
     return true;
 }
