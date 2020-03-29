@@ -29,9 +29,10 @@ int counter = 0;
 // Returns true if word is in dictionary else false
 bool check(const char *word)
 {
-    //printf("Check does smth\n");
+    // Calculate bucket of the word
     int index = hash(word);
 
+    // Compare word with all in the bucket
     node *cursor = table[index]->next;
     while (cursor != NULL)
     {
@@ -47,10 +48,9 @@ bool check(const char *word)
 // Hashes word to a number
 unsigned int hash(const char *word)
 {
-    //printf("Hash does smth\n");
-    //printf("First letter in ASCII is %i.\n", index);
     int index = 0;
 
+    // Suboptimal alphabetical "first letter" hash
     if (isalpha(word[0]))
     {
         index = (int) word[0];
@@ -70,8 +70,6 @@ unsigned int hash(const char *word)
 // Loads dictionary into memory, returning true if successful else false
 bool load(const char *dictionary)
 {
-    //printf("Load does smth\n");
-
     // Open file
     FILE *inptr = fopen(dictionary, "r");
     if (inptr == NULL)
@@ -89,14 +87,14 @@ bool load(const char *dictionary)
     // Allocate memory for hash table
     for (int i = 0; i < N; i++)
     {
-        table[i] = calloc(1, sizeof(node));
+        table[i] = calloc(1, sizeof(node)); // calloc instead of malloc to inititalize
     }
 
     // Read all lines until the end of file (assume line == word)
     while (fscanf(inptr, "%s", word) != EOF)
     {
         // Allocate new node
-        node *n = calloc(1, sizeof(node));
+        node *n = calloc(1, sizeof(node)); // calloc to initialize
         if (n == NULL)
         {
             return false;
@@ -104,13 +102,11 @@ bool load(const char *dictionary)
 
         // Copy word from buffer to a node
         strcpy(n->word, word);
-        //printf("Word %s is copied.\n", n->word);
 
-        // Find a bucket to add node
+        // Calculate a bucket to add node
         int index = hash(n->word);
-        //printf ("Returned index is %i.\n", index);
 
-        // Add node to a list
+        // Add node to the beginning of the list
         if (table[index]->next == NULL)
         {
             table[index]->next = n;
@@ -130,24 +126,22 @@ bool load(const char *dictionary)
 // Returns number of words in dictionary if loaded else 0 if not yet loaded
 unsigned int size(void)
 {
-    //printf("Size return is %i.\n", counter);
-    return counter;
+    return counter; // calculated in load function
 }
 
 // Unloads dictionary from memory, returning true if successful else false
 bool unload(void)
 {
-    node *tmp;
+    node *tmp; // temporary pointer to free
 
     for (int i = 0; i < N; i++)
     {
-        node *cursor = table[i];
-        while (cursor != NULL)
+        node *cursor = table[i]; // cursor points at the beginning of the bucket
+        while (cursor != NULL) // iterate through the bucket
         {
-            tmp = cursor;
-            cursor = cursor->next;
-            free(tmp);
-            //printf("Unload word is %s.\n", cursor->word);
+            tmp = cursor; // tmp points at the same element as cursor
+            cursor = cursor->next; // cursor points at next element
+            free(tmp); // free previous element
         }
     }
 
