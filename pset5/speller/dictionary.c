@@ -18,7 +18,7 @@ typedef struct node
 node;
 
 // Number of buckets in hash table
-const unsigned int N = 26;
+const unsigned int N = 26*26*26; //assumtion of optimal buckets number
 
 // Hash table
 node *table[N];
@@ -48,22 +48,24 @@ bool check(const char *word)
 // Hashes word to a number
 unsigned int hash(const char *word)
 {
-    int index = 0;
-
-    // Suboptimal alphabetical "first letter" hash
-    if (isalpha(word[0]))
+    // Lower words to make hash function case insensitive
+    char *lower_word = malloc(strlen(word) + 1);
+    if (lower_word == NULL)
     {
-        index = (int) word[0];
-        if (index >= 65 && index <= 90)
-        {
-            index = index - 65;
-        }
-        else if (index >= 97 && index <= 122)
-        {
-            index = index - 97;
-        }
+        return false;
     }
 
+    // Hash function from https://computinglife.wordpress.com/2008/11/20/why-do-hash-functions-use-prime-numbers/
+    unsigned long index = 7;
+    
+    for (int i = 0; (i < strlen(word) && i < 20); i++)
+    {
+        lower_word[i] = tolower(word[i]);
+        index = index * 31 + lower_word[i];
+    }
+    index = index % N; // reduce hash to be inside of number of buckets
+    
+    free(lower_word);
     return index;
 }
 
