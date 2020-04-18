@@ -1,5 +1,4 @@
 import sys
-import re
 
 def main():
 
@@ -47,31 +46,6 @@ def main():
                 end += len(s)
             max_count = max(count, max_count)
         results.append(str(max_count))
-            
-            
-        """
-        count, max_count = 0, 0
-        first = re.search(s, sample)
-        if not first:
-            results.append('0')
-            continue
-        else:
-            start = first.start()
-            end = first.end()
-            while end <= len(sample):
-                # print(start)
-                # print(end)
-                if sample[start:end] == s:
-                    count += 1
-                    max_count = max(count, max_count)
-                else:
-                    count = 0
-                start = end
-                end += len(s)
-            results.append(str(max_count))
-        # results.append(str(len(re.findall(s, sample))))
-    # print(f"{results}")
-    """
 
     # Check for matches in database
     for person in db:
