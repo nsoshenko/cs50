@@ -1,9 +1,15 @@
-.nav-link-own
+.navbar-dark .navbar-nav .nav-link
 {
-    color: #fff!important;
+    color: #fff;
 }
 
-.active-own
+.navbar-dark .navbar-nav .nav-item.active
 {
+    color: #fff;
     font-weight: bold;
+}
+
+.hidden
+{
+    display: none!important;
 }

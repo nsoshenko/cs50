@@ -14,17 +14,17 @@
     <title>Homepage</title>
   </head>
   <nav class="navbar sticky-top navbar-expand-md navbar-dark" style="background-color: #1d3657; font-family: sans-serif;">
-      <a class="navbar-brand" href="#">Zephrys</a>
+      <a class="navbar-brand" href="index.html">Zephrys</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navBarCollapsed">
           <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navBarCollapsed">
           <ul class="navbar-nav">
-              <li class="nav-item active active-own">
+              <li class="nav-item active">
                   <a class="nav-link" href="index.html">Home <span class="sr-only">(current)</span></a>
               </li>
               <li class="nav-item">
-                  <a class="nav-link nav-link-own" href="#">List of cards</a>
+                  <a class="nav-link" href="#">List of cards</a>
               </li>
               <li class="nav-item">
                   <a class="nav-link disabled" href="#">Outcome simulator</a>
@@ -35,13 +35,32 @@
                     <a class="nav-link nav-link-own" href="#">Log In</a>
                 </li>
                 <li class="nav-item">
-                    <a class="btn btn-primary active" href="signup.html" role="button">Sign Up</a>
+                    <a class="btn btn-primary" href="signup.html" role="button">Sign Up</a>
                 </li>
             </ul>
       </div>
   </nav>
-  <body>
-    <h1>Hello, homepage!</h1>
+  <body class="bg-light">
+    <div class="container align-items-center">
+      <div class="d-flex row mt-4">
+        <div class="col md-4">
+          <img src="assets/zephrys-avatar.png" class="rounded float-left d-block" alt="Avatar of Zephrys.png">
+        </div>
+        <div class="col md-4 my-5 align-items-center">
+          <p>Hi, Stranger! I'm Zephrys - the mastermind of the Hearthstone card game. Give me some options for the best card to play on your next turn and I'll always choose one with the highest power level for you!</p>
+          <p>On this website you can:</p>
+          <ul>
+            <li>Join the team via Sign Up page and be aware of all the Azeroth news</li>
+            <li>Log In, but nothing's gonna happen</li>
+            <li>Add some cards to Zephrys' mind in "List of cards" section</li>
+            <li>Some time later you'll be able to solve some puzzles with Zephrys</li>
+          </ul>
+        </div>
+      </div>
+      <footer class="my-5 pt-5 text-muted text-center text-small">
+            <p class="mb-1">By Nikita Soshenko 2020</p>
+        </footer>
+    </div>
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
