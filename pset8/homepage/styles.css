@@ -13,3 +13,10 @@
 {
     display: none!important;
 }
+
+.btn-link-own
+{
+    font-weight: 400;
+    color: #fff;
+    background-color: transparent;
+}

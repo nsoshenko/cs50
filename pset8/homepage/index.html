@@ -32,7 +32,7 @@
             </ul>
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                    <a class="nav-link nav-link-own" href="#">Log In</a>
+                    <button type="button" class="btn btn-link-own" data-toggle="modal" data-target="#logInModal">Log In</button>
                 </li>
                 <li class="nav-item">
                     <a class="btn btn-primary" href="signup.html" role="button">Sign Up</a>
@@ -41,6 +41,31 @@
       </div>
   </nav>
   <body class="bg-light">
+    <!-- Modal -->
+    <div class="modal fade" data-backdrop="static" id="logInModal" tabindex="-1" role="dialog" aria-labelledby="logInModalTitle" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="logInModalTitle">Log In</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form class="needs-validation" novalidate>
+              <label for="username">Username:</label><br>
+              <input type="text" class="form-control" id="username" name="username"><br>
+              <label for="pwd">Password:</label><br>
+              <input type="password" class="form-control" id="pwd" name="pwd">
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+          </div>
+        </div>
+      </div>
+    </div>
     <div class="container align-items-center">
       <div class="d-flex row mt-4">
         <div class="col md-4">
