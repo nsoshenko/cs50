@@ -1,0 +1,38 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Homepage
+{% endblock %}
+
+{% block main %}
+    <div class="row h3">
+        <div class="col">
+            <p class="text-left">{{ username }}</p>
+        </div>
+        <div class="col">
+            <p class="text-right">Balance: {{ balance | usd }}</p>
+        </div>
+    </div>
+    <table class="table">
+        <thead>
+            <th>#</th>
+            <th>Company name</th>
+            <th>Symbol</th>
+            <th>Amount</th>
+            <th>Price (per one)</th>
+            <th>Total</th>
+        </thead>
+        <tbody>
+            {% for result in results %}
+                <tr>
+                    <td>{{ result["id"] }}</td>
+                    <td>{{ result["name"] }}</td>
+                    <td>{{ result["symbol"] }}</td>
+                    <td>{{ result["amount"] }}</td>
+                    <td>{{ result["price"] | usd }}</td>
+                    <td>{{ result["total"] | usd }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

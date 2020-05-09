@@ -44,7 +44,24 @@ if not os.environ.get("API_KEY"):
 @login_required
 def index():
     """Show portfolio of stocks"""
-    return apology("TODO")
+    results = []
+
+    # Get the data from DB
+    symbols = db.execute("SELECT symbol, SUM(amount) FROM purchases WHERE user_id = :user GROUP BY symbol HAVING SUM(amount) > 0", user=session["user_id"])
+    user_info = db.execute("SELECT username, cash FROM users WHERE id = :user", user=session["user_id"])[0]
+    username = user_info["username"]
+    balance = user_info["cash"]
+
+    # Prepare data for the table
+    for i in range(len(symbols)):
+        response = lookup(symbols[i]["symbol"])
+        amount = symbols[i]["SUM(amount)"]
+        total = round(amount * response["price"], 2)
+        balance += total # add stocks value to cash balance
+        temp = {"id": i+1, "name": response["name"], "symbol": response["symbol"], "amount": amount, "price": response["price"], "total": total}
+        results.append(temp)
+
+    return render_template("index.html", results=results, username=username, balance=balance)
 
 
 @app.route("/buy", methods=["GET", "POST"])
@@ -60,8 +77,10 @@ def buy():
             return apology("must provide number of shares", 403)
 
         else:
-            symbol = request.form.get("symbol")
+            symbol = request.form.get("symbol").upper()
             shares = int(request.form.get("shares"))
+            if shares <= 0:
+                return apology("number of shares should be positive", 403)
 
         response = lookup(symbol)
 
@@ -69,11 +88,11 @@ def buy():
             return apology("no such symbol in database", 403)
 
         user_balance = db.execute("SELECT cash FROM users WHERE id = :user", user=session["user_id"])[0]["cash"]
-        print(user_balance)
 
         if (shares * response["price"]) > user_balance:
             return apology("insufficient balance", 403)
         else:
+            # Perform purchase transaction
             backup_balance = user_balance
             user_balance -= shares * response["price"]
             db.execute("UPDATE users SET cash = :cash WHERE id = :user", cash=user_balance, user=session["user_id"])
@@ -84,7 +103,7 @@ def buy():
                 db.execute("UPDATE users SET cash = :cash WHERE id = :user", cash=backup_balance, user=session["user_id"])
                 return apology("oops, something went wrong", 403)
 
-        return redirect("/buy")
+        return redirect("/")
 
     else:
         return render_template("buy.html")
@@ -94,7 +113,23 @@ def buy():
 @login_required
 def history():
     """Show history of transactions"""
-    return apology("TODO")
+    results = []
+
+    # Get the data from DB
+    response = db.execute("SELECT * FROM purchases WHERE user_id = :user", user=session["user_id"])
+
+    # Prerape data for the table
+    for transaction in response:
+        type = None
+        if transaction["amount"] < 0:
+            type = "Sell"
+        else:
+            type = "Buy"
+        temp = {"id": transaction["id"], "type": type, "symbol": transaction["symbol"], "amount": transaction["amount"],
+        "price": transaction["price"], "time" : transaction["created_at"]}
+        results.append(temp)
+
+    return render_template("history.html", results=results)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -127,7 +162,7 @@ def login():
         session["user_id"] = rows[0]["id"]
 
         # Redirect user to home page
-        return redirect("/buy")
+        return redirect("/")
 
     # User reached route via GET (as by clicking a link or via redirect)
     else:
@@ -177,6 +212,7 @@ def register():
         elif not request.form.get("password") == request.form.get("confirmation"):
             return apology("passwords don't match", 403)
 
+        # Check for existing username in DB
         elif db.execute("SELECT * FROM users WHERE username = :username", username=username):
             return apology("this username already exists", 403)
 
@@ -194,7 +230,57 @@ def register():
 @login_required
 def sell():
     """Sell shares of stock"""
-    return apology("TODO")
+    if request.method == "POST":
+
+        if not request.form.get("symbol"):
+            return apology("must choose symbol", 403)
+
+        elif not request.form.get("shares"):
+            return apology("must provide number of shares", 403)
+
+        else:
+            symbol = request.form.get("symbol")
+            shares = int(request.form.get("shares"))
+            if shares <= 0:
+                return apology("number of shares should be positive", 403)
+
+            # Check how many stocks of provided symbol does user own
+            available = db.execute("SELECT SUM(amount) FROM purchases WHERE user_id = :user AND symbol = :symbol",
+            user=session["user_id"], symbol=symbol)[0]["SUM(amount)"]
+            if not available or shares > available:
+                return apology("you haven't as many available stocks", 403)
+
+            # Lookup for the current stock data
+            response = lookup(symbol)
+            if not response:
+                return apology("no such symbol in database", 403)
+
+            # Perform selling transaction
+            user_balance = db.execute("SELECT cash FROM users WHERE id = :user", user=session["user_id"])[0]["cash"]
+            backup_balance = user_balance
+            user_balance += shares * response["price"]
+            db.execute("UPDATE users SET cash = :cash WHERE id = :user", cash=user_balance, user=session["user_id"])
+            sell_success = db.execute("INSERT INTO purchases (user_id, symbol, price, amount) VALUES (?,?,?,?)",
+            session["user_id"], symbol, response["price"], -shares)
+
+            if not sell_success:
+                db.execute("UPDATE users SET cash = :cash WHERE id = :user", cash=backup_balance, user=session["user_id"])
+                return apology("oops, something went wrong", 403)
+
+            return redirect("/")
+
+    else:
+        # Check which stocks does user own
+        response = db.execute("SELECT symbol, SUM(amount) FROM purchases WHERE user_id = :user GROUP BY symbol HAVING SUM(amount) > 0", user=session["user_id"])
+        if not response:
+            return apology("you have nothing to sell", 403)
+
+        else:
+            results = []
+            for symbol in response:
+                results.append(symbol["symbol"])
+
+        return render_template("sell.html", results=results)
 
 
 def errorhandler(e):
