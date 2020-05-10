@@ -47,7 +47,7 @@ def index():
     results = []
 
     # Get the data from DB
-    symbols = db.execute("SELECT symbol, SUM(amount) FROM purchases WHERE user_id = :user GROUP BY symbol HAVING SUM(amount) > 0", user=session["user_id"])
+    symbols = db.execute("SELECT symbol, SUM(amount) FROM purchases WHERE user_id = :user AND symbol != '-' GROUP BY symbol HAVING SUM(amount) > 0", user=session["user_id"])
     user_info = db.execute("SELECT username, cash FROM users WHERE id = :user", user=session["user_id"])[0]
     username = user_info["username"]
     balance = user_info["cash"]
@@ -124,6 +124,8 @@ def history():
         type = None
         if transaction["amount"] < 0:
             type = "Sell"
+        elif transaction["symbol"] == "-":
+            type = "Deposit"
         else:
             type = "Buy"
         temp = {"id": transaction["id"], "type": type, "symbol": transaction["symbol"], "amount": transaction["amount"],
@@ -161,6 +163,7 @@ def login():
 
         # Remember which user has logged in
         session["user_id"] = rows[0]["id"]
+        session["username"] = rows[0]["username"]
 
         # Redirect user to home page
         return redirect("/")
@@ -287,6 +290,70 @@ def sell():
                 results.append(symbol["symbol"])
 
         return render_template("sell.html", results=results)
+
+
+@app.route("/deposit", methods=["GET", "POST"])
+@login_required
+def deposit():
+    """Add cash to user's balance"""
+    if request.method == "POST":
+
+        if not request.form.get("amount"):
+            return apology("must enter amount to deposit", 403)
+        else:
+            deposit = int(request.form.get("amount"))
+            if deposit <= 0:
+                return apology("deposit must be a positive number", 403)
+
+        user_balance = db.execute("SELECT cash FROM users WHERE id = :user", user=session["user_id"])[0]["cash"]
+        backup_balance = user_balance
+        user_balance += deposit
+        db.execute("UPDATE users SET cash = :cash WHERE id = :user", cash=user_balance, user=session["user_id"])
+        deposit_success = db.execute("INSERT INTO purchases (user_id, symbol, price, amount) VALUES (?,?,?,?)",
+            session["user_id"], "-", deposit, 1)
+
+        if not deposit_success:
+            db.execute("UPDATE users SET cash = :cash WHERE id = :user", cash=backup_balance, user=session["user_id"])
+            return apology("oops, something went wrong", 403)
+
+        flash("Succesfull deposit!")
+        return redirect("/")
+
+    else:
+        return render_template("deposit.html")
+
+
+@app.route("/change_password", methods=["GET", "POST"])
+@login_required
+def change_password():
+    """Allow user to change password"""
+    if request.method == "POST":
+
+        old_password = request.form.get("oldPassword")
+
+        if not old_password:
+            return apology("must provide old password", 403)
+
+        elif not request.form.get("newPassword"):
+            return apology("must provide new password", 403)
+
+        elif not request.form.get("newPassword") == request.form.get("confirmation"):
+            return apology("new passwords don't match", 403)
+
+        check = db.execute("SELECT hash FROM users WHERE id = :user", user=session["user_id"])[0]["hash"]
+        if not check_password_hash(check, old_password):
+            return apology("invalid current password", 403)
+
+        update_password = db.execute("UPDATE users SET hash = :new_password WHERE id = :user",
+        new_password=generate_password_hash(request.form.get("newPassword")), user=session["user_id"])
+        if not update_password:
+            return apology("oops, something went wrong", 403)
+
+        flash("Password is changed!")
+        return redirect("/")
+
+    else:
+        return render_template("change_password.html")
 
 
 def errorhandler(e):
