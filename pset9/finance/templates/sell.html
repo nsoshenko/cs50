@@ -8,14 +8,14 @@
     <form action="/sell" method="post">
         <div class="form-group">
             <select name="symbol" class="form-control">
-                <option selected>Choose share symbol</option>
+                <option disabled selected>Choose share symbol</option>
                 {% for symbol in results %}
                 <option>{{ symbol }}</option>
                 {% endfor %}
             </select>
         </div>
         <div class="form-group">
-            <input name="shares" type="number" autocomplete="off" class="form-control" placeholder="Number of shares">
+            <input name="shares" type="number" autocomplete="off" class="form-control" min=1 placeholder="Number of shares">
         </div>
         <button class="btn btn-primary" type="submit">Sell</button>
     </form>

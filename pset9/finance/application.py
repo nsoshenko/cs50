@@ -103,6 +103,7 @@ def buy():
                 db.execute("UPDATE users SET cash = :cash WHERE id = :user", cash=backup_balance, user=session["user_id"])
                 return apology("oops, something went wrong", 403)
 
+        flash("Successful purchase!")
         return redirect("/")
 
     else:
@@ -221,7 +222,11 @@ def register():
             username, generate_password_hash(request.form.get("password")))
             if not register:
                 return apology("oops, something went wrong", 403)
-            return redirect("/login")
+            else:
+                session.clear()
+                session["user_id"] = register
+            flash("Registered successfully!")
+            return redirect("/")
     else:
         return render_template("register.html")
 
@@ -267,6 +272,7 @@ def sell():
                 db.execute("UPDATE users SET cash = :cash WHERE id = :user", cash=backup_balance, user=session["user_id"])
                 return apology("oops, something went wrong", 403)
 
+            flash("Succesfull selling!")
             return redirect("/")
 
     else:
