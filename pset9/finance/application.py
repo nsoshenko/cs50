@@ -78,7 +78,7 @@ def buy():
 
         else:
             symbol = request.form.get("symbol").upper()
-            shares = int(request.form.get("shares"))
+            shares = int(request.form.get("shares").split(".")[0])
             if shares <= 0:
                 return apology("number of shares should be positive", 403)
 
@@ -248,7 +248,7 @@ def sell():
 
         else:
             symbol = request.form.get("symbol")
-            shares = int(request.form.get("shares"))
+            shares = int(request.form.get("shares").split(".")[0])
             if shares <= 0:
                 return apology("number of shares should be positive", 403)
 
@@ -280,7 +280,7 @@ def sell():
 
     else:
         # Check which stocks does user own
-        response = db.execute("SELECT symbol, SUM(amount) FROM purchases WHERE user_id = :user GROUP BY symbol HAVING SUM(amount) > 0", user=session["user_id"])
+        response = db.execute("SELECT symbol, SUM(amount) FROM purchases WHERE user_id = :user AND symbol != '-' GROUP BY symbol HAVING SUM(amount) > 0", user=session["user_id"])
         if not response:
             return apology("you have nothing to sell", 403)
 
@@ -301,7 +301,7 @@ def deposit():
         if not request.form.get("amount"):
             return apology("must enter amount to deposit", 403)
         else:
-            deposit = int(request.form.get("amount"))
+            deposit = int(request.form.get("amount").split(".")[0])
             if deposit <= 0:
                 return apology("deposit must be a positive number", 403)
 

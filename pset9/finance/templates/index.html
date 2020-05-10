@@ -38,7 +38,7 @@
                         <form method="post">
                             <div class="form-row">
                                 <input name="symbol" value="{{ result['symbol'] }}" style="display: none">
-                                <input name="shares" type="number" autocomplete="off" class="form-control" min=1 placeholder="Amount" style="width: 102px">
+                                <input name="shares" type="number" autocomplete="off" class="form-control" min=1 placeholder="Amount" style="width: 102px" required>
                                 <button class="btn btn-primary btn-sm ml-2" type="submit" formaction="/buy">Buy</button>
                                 <button class="btn btn-primary btn-sm ml-1" type="submit" formaction="/sell">Sell</button>
                             </div>
