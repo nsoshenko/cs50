@@ -1,5 +1,9 @@
-1. Autologin after registration, some session bugs now, commented
-2. Bug: after "Passwords don't match" there is double "This username is already in use" error
-3. Red alerts for category="error"
-4. flash(No match) in books is not working
-5. Iterative numbers in books.html
+1. Autologin after registration, some session bugs now, commented (critical)
+2. Bug: after "Passwords don't match" there is double "This username is already in use" error (minor)
+3. Red alerts for category="error" (major)
+4. flash(No match) in books is not working (critical)
+5. Iterative numbers in books.html (critical)
+6. UI :) (critical)
+7. Frontend control for only one review per book (while rendering page) (major)
+8. Fix DB (blocker)
+9. Add created_at column for reviews with default key NOW() (critical)

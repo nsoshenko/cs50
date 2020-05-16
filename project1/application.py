@@ -1,4 +1,5 @@
 import os
+import requests
 
 from flask import Flask, session, request, render_template, redirect, flash
 from flask_session import Session
@@ -70,6 +71,7 @@ def login():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+
     # Check if user is already logged in
     if session.get("user_id"):
         return redirect("/")
@@ -152,4 +154,41 @@ def books(books):
 @app.route("/books/<int:book_id>")
 @login_required
 def book_details(book_id):
-    return "TODO"
+
+    book_data = db.execute("SELECT * FROM books WHERE id = :book", {"book": book_id}).fetchone()
+    reviews = db.execute("SELECT * FROM reviews WHERE book_id = :book", {"book": book_id}).fetchall()
+    res = requests.get("https://www.goodreads.com/book/review_counts.json",
+                          params={"key": "2A54tMXDl9TuSbjhadZGqg", "isbns": book_data.isbn}).json()
+    rating = {"average": res["books"][0]["average_rating"], "count": res["books"][0]["ratings_count"]}
+
+    print(reviews)
+    return render_template("book.html", book=book_data, rating=rating, reviews=reviews)
+
+
+@app.route("/submit_review", methods=["POST"])
+@login_required
+def submit_review():
+
+    rating = request.form.get("rating")
+    review = request.form.get("review")
+    book_id = request.form.get("id")
+
+    if not rating:
+        flash("Please, choose rating", category="error")
+        return book_details(book_id)
+
+    if not db.execute("SELECT * FROM books WHERE id = :book", {"book": book_id}):
+        flash("No such book found in database", category="error")
+        return redirect("/")
+
+    if db.execute("SELECT * FROM reviews WHERE book_id = :book AND user_id = :user",
+                          {"book": book_id, "user": session["user_id"]}).rowcount != 0:
+        flash("You've submitted a review for this book before!", category="error")
+        return book_details(book_id)
+
+    submit = db.execute("INSERT INTO reviews (rating, text, book_id, user_id) VALUES (:rating, :text, :book, "
+                                ":user)", {"rating": rating, "text": review, "book": book_id, "user": session["user_id"]})
+    db.commit()
+
+    flash("Thanks for your opinion!", category="success")
+    return book_details(book_id)
