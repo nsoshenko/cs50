@@ -1,0 +1,5 @@
+1. Autologin after registration, some session bugs now, commented
+2. Bug: after "Passwords don't match" there is double "This username is already in use" error
+3. Red alerts for category="error"
+4. flash(No match) in books is not working
+5. Iterative numbers in books.html

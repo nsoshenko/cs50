@@ -99,6 +99,8 @@ def register():
                               {"username": username, "password": generate_password_hash(password)})
         db.commit()
 
+        print(register)
+
         # session.clear()
         # session["user_id"] = register
 
@@ -118,3 +120,36 @@ def logout():
 
     # Redirect user to login form
     return redirect("/")
+
+
+@app.route("/search", methods=["POST"])
+@login_required
+def search():
+
+    query = request.form.get("query")
+
+    if not query:
+        flash("Submit your search query")
+        return redirect("/")
+
+    rows = db.execute("SELECT * FROM books WHERE isbn LIKE :query OR author LIKE :query OR title LIKE :query",
+                       {"query": f"%{query}%"}).fetchall()
+
+    return books(rows)
+
+
+@app.route("/books")
+@login_required
+def books(books):
+
+    if not books:
+        flash("No matches")
+        return redirect("/")
+
+    return render_template("books.html", books=books)
+
+
+@app.route("/books/<int:book_id>")
+@login_required
+def book_details(book_id):
+    return "TODO"
