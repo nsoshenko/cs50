@@ -7,7 +7,7 @@
 {% block main %}
     <form action="{{ url_for('search') }}" method="post">
         <div class="row justify-content-center">
-            <input name="query" type="text" autocomplete="off" autofocus class="form-control" placeholder="ISBN, title or author" required>
+            <input name="query" type="text" autocomplete="off" autofocus class="form-control w-auto" placeholder="ISBN, title or author">
             <button class="btn btn-primary ml-3" type="submit">Search</button>
         </div>
     </form>

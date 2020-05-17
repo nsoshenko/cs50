@@ -5,28 +5,28 @@
 {% endblock %}
 
 {% block main %}
-    <table class="table">
-        <thead>
-            <tr>
-                <th>#</th>
-                <th>Title</th>
-                <th>Author</th>
-                <th>Publication year</th>
-                <th>ISBN</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for book in books %}
+    <div class="table-responsive table-responsive-sm left">
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>#</td>
-                    <td>
-                        <a href="{{ url_for('book_details', book_id=book.id) }}">{{ book.title }}</a>
-                    </td>
-                    <td>{{ book.author }}</td>
-                    <td>{{ book.year }}</td>
-                    <td>{{ book.isbn }}</td>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Publication year</th>
+                    <th>ISBN</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for book in books %}
+                    <tr>
+                        <td>
+                            <a href="{{ url_for('book_details', book_id=book.id) }}">{{ book.title }}</a>
+                        </td>
+                        <td>{{ book.author }}</td>
+                        <td>{{ book.year }}</td>
+                        <td>{{ book.isbn }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% endblock %}

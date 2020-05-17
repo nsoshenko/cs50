@@ -27,7 +27,7 @@
 
     <body>
 
-        <nav class="navbar navbar-expand-md navbar-dark bg-dark border">
+        <nav class="navbar navbar-expand-sm navbar-dark bg-dark border">
             <a class="navbar-brand" href="/">Bookshop</a>
             <button aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-target="#navbar" data-toggle="collapse" type="button">
                 <span class="navbar-toggler-icon"></span>
@@ -40,9 +40,6 @@
                               {{ session.username }}
                             </a>
                             <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                <a class="dropdown-item" href="/deposit">Deposit</a>
-                                <a class="dropdown-item" href="/change_password">Change password</a>
-                                <div class="dropdown-divider"></div>
                                 <a class="dropdown-item" href="/logout">Log Out</a>
                             </div>
                         </li>
@@ -58,12 +55,21 @@
 
         {% if get_flashed_messages() %}
             <header>
+                {% if get_flashed_messages(category_filter=["message"]) %}
                 <div class="alert alert-primary alert-dismissable fade show border text-center" role="alert">
+                    {{ get_flashed_messages() }}
+                    <button type="button" class="close" data-dismiss="alert">
+                        <span area-hidden="true">&times;</span>
+                    </button>
+                </div>
+                {% elif get_flashed_messages(category_filter=["error"]) %}
+                <div class="alert alert-danger alert-dismissable fade show border text-center" role="alert">
                     {{ get_flashed_messages() | join(" ") }}
                     <button type="button" class="close" data-dismiss="alert">
                         <span area-hidden="true">&times;</span>
                     </button>
                 </div>
+                {% endif %}
             </header>
         {% endif %}
 
@@ -71,7 +77,7 @@
             {% block main %}{% endblock %}
         </main>
 
-        <footer class="small text-center text-muted">
+        <footer class="small text-center text-muted mb-4">
              Made by <a href="https://github.com/nsoshenko/cs50">Nikita Soshenko</a> 2020.
         </footer>
 

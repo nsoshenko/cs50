@@ -3,8 +3,12 @@ main .form-control
     /* center form controls */
     display: inline-block;
 
-    /* override Bootstrap's 100% width for form controls */
-    width: auto;
+}
+
+main .form-control .w-auto
+{
+    /* override bootstraps full width for forms */
+    width:auto
 }
 
 main
@@ -13,5 +17,24 @@ main
     overflow-x: auto;
 
     /* center contents */
+    text-align: center;
+}
+
+main .left
+{
+
     text-align: left;
+}
+
+main .right
+{
+
+    text-align: right;
+}
+
+.star
+{
+
+    fill-rule:nonzero;
+    fill:#FFD44D;
 }
