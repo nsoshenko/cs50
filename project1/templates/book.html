@@ -53,8 +53,21 @@
         </div>
     </div>
     {% for review in reviews %}
-        <div class="row">
-            {{ review.text }}
+        <div class="card">
+            <div class="card-header">
+                {% for i in range(review.rating) %}
+                    <svg width="20px" height="20px" viewBox="35 0 50 100" xmlns="http://www.w3.org/2000/svg">
+                        <polygon points="50,05 20,99 95,39 5,39 80,99" style="fill-rule:nonzero; fill:#FFD44D;"></polygon>
+                    </svg>
+                {% endfor %}
+                {{ review.created_at.strftime('%d/%m/%Y %H:%M') }}
+            </div>
+            <div class="card-body">
+                <blockquote class="blockquote mb-0">
+                    <p>{{ review.text }}</p>
+                    <footer class="blockquote-footer">By {{ review.username }}</footer>
+                </blockquote>
+            </div>
         </div>
     {% else %}
         <h3>No reviews for this book yet</h3>

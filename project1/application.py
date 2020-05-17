@@ -1,7 +1,7 @@
 import os
 import requests
 
-from flask import Flask, session, request, render_template, redirect, flash
+from flask import Flask, session, request, render_template, redirect, flash, jsonify
 from flask_session import Session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -19,6 +19,10 @@ if not os.getenv("DATABASE_URL"):
 app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
+
+# Turn off alphabetical sorting for JSON responses
+# https://flask.palletsprojects.com/en/1.1.x/config/#config
+app.config["JSON_SORT_KEYS"] = False
 
 # Set up database
 engine = create_engine(os.getenv("DATABASE_URL"))
@@ -71,7 +75,6 @@ def login():
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
-
     # Check if user is already logged in
     if session.get("user_id"):
         return redirect("/")
@@ -127,7 +130,6 @@ def logout():
 @app.route("/search", methods=["POST"])
 @login_required
 def search():
-
     query = request.form.get("query")
 
     if not query:
@@ -135,7 +137,7 @@ def search():
         return redirect("/")
 
     rows = db.execute("SELECT * FROM books WHERE isbn LIKE :query OR author LIKE :query OR title LIKE :query",
-                       {"query": f"%{query}%"}).fetchall()
+                      {"query": f"%{query}%"}).fetchall()
 
     return books(rows)
 
@@ -143,7 +145,6 @@ def search():
 @app.route("/books")
 @login_required
 def books(books):
-
     if not books:
         flash("No matches")
         return redirect("/")
@@ -154,11 +155,13 @@ def books(books):
 @app.route("/books/<int:book_id>")
 @login_required
 def book_details(book_id):
-
     book_data = db.execute("SELECT * FROM books WHERE id = :book", {"book": book_id}).fetchone()
-    reviews = db.execute("SELECT * FROM reviews WHERE book_id = :book", {"book": book_id}).fetchall()
+    reviews = db.execute("SELECT rating, text, username, created_at FROM reviews"
+                         " JOIN users ON user_id = users.id"
+                         " WHERE book_id = :book"
+                         " ORDER BY created_at DESC", {"book": book_id}).fetchall()
     res = requests.get("https://www.goodreads.com/book/review_counts.json",
-                          params={"key": "2A54tMXDl9TuSbjhadZGqg", "isbns": book_data.isbn}).json()
+                       params={"key": "2A54tMXDl9TuSbjhadZGqg", "isbns": book_data.isbn}).json()
     rating = {"average": res["books"][0]["average_rating"], "count": res["books"][0]["ratings_count"]}
 
     print(reviews)
@@ -168,7 +171,6 @@ def book_details(book_id):
 @app.route("/submit_review", methods=["POST"])
 @login_required
 def submit_review():
-
     rating = request.form.get("rating")
     review = request.form.get("review")
     book_id = request.form.get("id")
@@ -182,13 +184,34 @@ def submit_review():
         return redirect("/")
 
     if db.execute("SELECT * FROM reviews WHERE book_id = :book AND user_id = :user",
-                          {"book": book_id, "user": session["user_id"]}).rowcount != 0:
+                  {"book": book_id, "user": session["user_id"]}).rowcount != 0:
         flash("You've submitted a review for this book before!", category="error")
         return book_details(book_id)
 
     submit = db.execute("INSERT INTO reviews (rating, text, book_id, user_id) VALUES (:rating, :text, :book, "
-                                ":user)", {"rating": rating, "text": review, "book": book_id, "user": session["user_id"]})
+                        ":user)", {"rating": rating, "text": review, "book": book_id, "user": session["user_id"]})
     db.commit()
 
     flash("Thanks for your opinion!", category="success")
     return book_details(book_id)
+
+
+@app.route("/api/<isbn>")
+def api_book_info(isbn):
+
+    book = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
+    if not book:
+        return jsonify({"error": "No such book in database"}), 404
+
+    res = requests.get("https://www.goodreads.com/book/review_counts.json",
+                       params={"key": "2A54tMXDl9TuSbjhadZGqg", "isbns": book.isbn}).json()
+    rating = {"average": res["books"][0]["average_rating"], "count": res["books"][0]["ratings_count"]}
+
+    return jsonify({
+        "title": book.title,
+        "author": book.author,
+        "year": book.year,
+        "isbn": book.isbn,
+        "review_count": rating["count"],
+        "average_score": rating["average"]
+    })
