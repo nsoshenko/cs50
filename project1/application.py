@@ -159,8 +159,9 @@ def search():
         return redirect("/")
 
     # Execute search in DB
-    search_results = Book.query.filter(or_(Book.title.like(f"%{search}%"), Book.author.like(f"%{search}%"),
-                                 Book.isbn.like(f"%{search}%"))).all()
+    search_results = Book.query.filter(or_(Book.title.like(f"%{search}%"),
+                                           Book.author.like(f"%{search}%"),
+                                           Book.isbn.like(f"%{search}%"))).all()
 
     # Pass the search results to the Books page
     return books(search_results)
@@ -188,8 +189,8 @@ def book_details(book_id):
     book_data = Book.query.get(book_id)
 
     # Select all reviews for current book by id from DB
-    reviews = db.session.query(Review, User).filter(User.id == Review.user_id).all()
-    print(reviews)
+    reviews = db.session.query(Review, User).filter(User.id == Review.user_id,
+                                                    Review.book_id == book_id).all()
 
     # Select rating statistics from Goodreads by API request
     res = requests.get("https://www.goodreads.com/book/review_counts.json",
@@ -244,7 +245,7 @@ def api_book_info(isbn):
     """API method to get book data by ISBN"""
 
     # Search for a book by ISBN in DB
-    book = db.execute("SELECT * FROM books WHERE isbn = :isbn", {"isbn": isbn}).fetchone()
+    book = Book.query.filter_by(isbn=isbn).first()
 
     # Return 404 error with JSON if no match
     if not book:
