@@ -6,3 +6,5 @@ https://cs50.harvard.edu/web/ - Web Programming for intermediate
 https://cs50.harvard.edu/mobile/ - Mobile Development for intermediate
 
 https://cs50.harvard.edu/games/ - Gamedev for intermediate
+
+https://cs50.harvard.edu/ai/2020/ - AI for intermediate
