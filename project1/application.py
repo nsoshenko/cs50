@@ -3,11 +3,12 @@ import requests
 
 from flask import Flask, session, request, render_template, redirect, flash, jsonify
 from flask_session import Session
-from sqlalchemy import create_engine
-from sqlalchemy.orm import scoped_session, sessionmaker
 from werkzeug.security import check_password_hash, generate_password_hash
+from sqlalchemy import or_
 
 from helpers import login_required
+from models import *
+
 
 app = Flask(__name__)
 
@@ -25,8 +26,9 @@ Session(app)
 app.config["JSON_SORT_KEYS"] = False
 
 # Set up database
-engine = create_engine(os.getenv("DATABASE_URL"))
-db = scoped_session(sessionmaker(bind=engine))
+app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL")
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+db.init_app(app)
 
 
 @app.route("/")
@@ -64,14 +66,14 @@ def login():
         password = request.form.get("password")
 
         # Check if there a user with such username in DB
-        user = db.execute("SELECT * FROM users WHERE username = :username", {"username": username}).fetchone()
+        user = User.query.filter_by(username=username).first()
         if not user:
             flash("No such user", category="error")
             return render_template("login.html")
 
         # Check if password hashes of the input and DB match
         if not check_password_hash(user.password, password):
-            flash("Password is incorrect")
+            flash("Password is incorrect", category="error")
             return render_template("login.html")
 
         # Create session if all checks were passed
@@ -111,22 +113,19 @@ def register():
             render_template("register.html")
 
         # Check if the username is free
-        if db.execute("SELECT * FROM users WHERE username = :username", {"username": username}).rowcount > 0:
+        if User.query.filter_by(username=username).first():
             flash("This username is already in use", category="error")
             return render_template("register.html")
 
         # Create user in DB if all checks were passed
-        db.execute("INSERT INTO users (username, password) VALUES (:username, :password)",
-                  {"username": username, "password": generate_password_hash(password)})
-        db.commit()
-
-        # Additional select for autologin after registration (haven't managed to do it with INSERT result)
-        autologin = db.execute("SELECT id FROM users WHERE username = :username", {"username": username}).fetchone()
+        new_user = User(username=username, password=generate_password_hash(password))
+        db.session.add(new_user)
+        db.session.commit()
 
         # Create session to login the user
         session.clear()
-        session["user_id"] = autologin.id
-        session["username"] = username
+        session["user_id"] = new_user.id
+        session["username"] = new_user.username
 
         flash("Successful registration")
         return redirect("/")
@@ -152,19 +151,19 @@ def search():
     """Search for books in DB"""
 
     # Memorize input for comfort
-    query = request.form.get("query")
+    search = request.form.get("query")
 
     # Check for input
-    if not query:
+    if not search:
         flash("Submit your search query", category="error")
         return redirect("/")
 
     # Execute search in DB
-    rows = db.execute("SELECT * FROM books WHERE isbn LIKE :query OR author LIKE :query OR title LIKE :query",
-                      {"query": f"%{query}%"}).fetchall()
+    search_results = Book.query.filter(or_(Book.title.like(f"%{search}%"), Book.author.like(f"%{search}%"),
+                                 Book.isbn.like(f"%{search}%"))).all()
 
     # Pass the search results to the Books page
-    return books(rows)
+    return books(search_results)
 
 
 @app.route("/books")
@@ -186,13 +185,11 @@ def book_details(book_id):
     """Renders book details page"""
 
     # Select title, author, year, isbn by id from DB
-    book_data = db.execute("SELECT * FROM books WHERE id = :book", {"book": book_id}).fetchone()
+    book_data = Book.query.get(book_id)
 
     # Select all reviews for current book by id from DB
-    reviews = db.execute("SELECT rating, text, username, created_at FROM reviews"
-                         " JOIN users ON user_id = users.id"
-                         " WHERE book_id = :book"
-                         " ORDER BY created_at DESC", {"book": book_id}).fetchall()
+    reviews = db.session.query(Review, User).filter(User.id == Review.user_id).all()
+    print(reviews)
 
     # Select rating statistics from Goodreads by API request
     res = requests.get("https://www.goodreads.com/book/review_counts.json",
@@ -217,23 +214,29 @@ def submit_review():
         flash("Please, choose rating", category="error")
         return book_details(book_id)
 
-    if not db.execute("SELECT * FROM books WHERE id = :book", {"book": book_id}):
+    if not Book.query.get(book_id):
         flash("No such book found in database", category="error")
         return redirect("/")
 
     # Check if there already exists review for this book from current user
-    if db.execute("SELECT * FROM reviews WHERE book_id = :book AND user_id = :user",
-                  {"book": book_id, "user": session["user_id"]}).rowcount != 0:
+    if Review.query.filter(Review.book_id == book_id, Review.user_id == session["user_id"]).first():
         flash("You've submitted a review for this book before!", category="error")
         return book_details(book_id)
 
     # Insert review to DB if all checks were passed
-    db.execute("INSERT INTO reviews (rating, text, book_id, user_id) VALUES (:rating, :text, :book, :user)",
-              {"rating": rating, "text": review, "book": book_id, "user": session["user_id"]})
-    db.commit()
+    new_review = Review(rating=rating, text=review, book_id=book_id, user_id=session["user_id"])
+    db.session.add(new_review)
+    db.session.commit()
 
     flash("Thanks for your opinion!", category="success")
     return book_details(book_id)
+
+
+@app.route("/api")
+def api():
+    """Page with API usage description"""
+
+    return render_template("api.html")
 
 
 @app.route("/api/<isbn>")

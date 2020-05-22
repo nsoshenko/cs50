@@ -16,7 +16,7 @@ LEFTOVERS:
 15. Favicon (minor)
 16. Successful registration always flash bug (critical)
 
-NEXT DEV STEPS FOR TOMORROW:
-1. Render reviews for the book_details page DONE
-2. API access DONE
-3. Bootstrap crash course for UI DONE
+Delighters:
+1. Jumbotron DONE
+2. API page DONE
+3. v1.5 with ORM

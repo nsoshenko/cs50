@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    API
+{% endblock %}
+
+{% block main %}
+    <div class="text-left">
+        <h1>API Usage</h1>
+        <p>
+            Sending a GET request to the following URL http://127.0.0.1:5000/api/[ISBN], where [ISBN] should be changed
+            by the real identificational number of the book, you will get a JSON in response.
+        </p>
+        <p>
+            Request example:
+            <a href="http://127.0.0.1:5000/api/1857984986">
+                http://127.0.0.1:5000/api/1857984986
+            </a>
+        </p>
+        <p>JSON Model example:
+            <code>
+            <br>{
+                <br>"title": "The Stainless Steel Rat",
+                <br>"author": "Harry Harrison",
+                <br>"year": "1961",
+                <br>"isbn": "1857984986",
+                <br>"review_count": 12125,
+                <br>"average_score": "3.93"
+            <br>}
+            </code>
+        </p>
+    </div>
+{% endblock %}

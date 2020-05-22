@@ -62,21 +62,21 @@
             <div class="card-header">
                 <div class="row">
                     <div class="col-6">
-                        {% for i in range(review.rating) %}
+                        {% for i in range(review.Review.rating) %}
                             <svg width="20px" height="20px" viewBox="35 0 50 100" xmlns="http://www.w3.org/2000/svg">
                                 <polygon points="50,05 20,99 95,39 5,39 80,99" class="star"></polygon>
                             </svg>
                         {% endfor %}
                     </div>
                 <div class="col-6 right">
-                    <p class="text-muted">{{ review.created_at.strftime('%d/%m/%Y %H:%M') }}</p>
+                    <p class="text-muted">{{ review.Review.created_at.strftime('%d/%m/%Y %H:%M') }}</p>
                 </div>
             </div>
             </div>
             <div class="card-body">
                 <blockquote class="blockquote mb-0">
-                    <p>{{ review.text }}</p>
-                    <footer class="blockquote-footer">By {{ review.username }}</footer>
+                    <p>{{ review.Review.text }}</p>
+                    <footer class="blockquote-footer">By {{ review.User.username }}</footer>
                 </blockquote>
             </div>
         </div>
