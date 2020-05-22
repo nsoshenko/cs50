@@ -1,3 +1,4 @@
+  
 LEFTOVERS:
 1. Autologin after registration, some session bugs now, commented (critical) DONE (new SELECT query to initialize session, let to bug #16)
 2. Bug: after "Passwords don't match" there is double "This username is already in use" error (minor)
@@ -16,7 +17,7 @@ LEFTOVERS:
 15. Favicon (minor)
 16. Successful registration always flash bug (critical)
 
-NEXT DEV STEPS FOR TOMORROW:
-1. Render reviews for the book_details page DONE
-2. API access DONE
-3. Bootstrap crash course for UI DONE
+Delighters:
+1. Jumbotron DONE
+2. API page DONE
+3. v1.5 with ORM
