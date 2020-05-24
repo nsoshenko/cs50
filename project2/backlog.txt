@@ -1,0 +1,5 @@
+1. Favicon (minor)
+2. Channels page for mobile (major)
+3. Get channels list endpoint on page load (critical)
+4. Suboptimal channels list refresh after creation in js (minor)
+5. Websocket for new channels

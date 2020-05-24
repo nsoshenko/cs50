@@ -1,0 +1,15 @@
+.menu {
+  justify-content: flex-start;
+}
+
+.channel {
+  border-radius: 3px;
+  cursor: pointer;
+  margin: 4px 0px;
+  padding: 5px;
+}
+
+.channel.active {
+  background-color: blue;
+  color: white;
+}

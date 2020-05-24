@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+
+{% block scripts %}
+    <script src="{{ url_for('static', filename='index.js') }}"></script>
+{% endblock %}
+
+{% block main %}
+    <main class="container">
+        <!-- Modal -->
+        <div class="modal fade" tabindex="-1" role="dialog" id="nicknameModal" data-backdrop="static">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Create your cool underground nickname:</h5>
+                    </div>
+                    <div class="modal-body">
+                        <form id="nicknameForm">
+                            <div class="form-group">
+                                <input autofocus class="form-control" id="usernameInput" placeholder="Nickname"
+                                type="text" required>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" type="submit" form="nicknameForm">Create</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <!--Channels list-->
+            <div class="col-3" id="left-menu">
+                <label for="channelCreation">Create new channel</label>
+                <form class="form-inline my-4" id="channelCreation" action="/create_channel" method="post">
+                    <label class="sr-only" for="newChannel">New channel</label>
+                    <input class="form-control" type="text" id="newChannel"
+                           autocomplete="off" placeholder="Channel name" required>
+                    <button class="btn btn-success btn-sm ml-2">+</button>
+                </form>
+                <div id="channelsList" class="menu">
+                    {% for channel in channels %}
+                         <div class="channel">#{{ channel }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+            <!--Channel-->
+            <div class="col-9" id="content-area">
+            </div>
+        </div>
+    </main>
+{% endblock %}
