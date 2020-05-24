@@ -43,6 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
            const data = JSON.parse(request.responseText);
            if (data.success) {
+
                // Modify channels list
                const div = document.createElement('div');
                div.className = 'channel';
@@ -72,6 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Channels list navigation function
 function navigation() {
+
     document.querySelectorAll('.channel').forEach(channel => {
         channel.onclick = () => {
           document.querySelectorAll('.channel.active').forEach(channel => {
@@ -79,7 +81,38 @@ function navigation() {
           });
           channel.classList.add('active');
           // document.querySelector('.empty').remove();
-          document.querySelector('#content-area').innerHTML = channel.innerHTML;
+          fetch_messages(channel.innerHTML);
         };
     });
+};
+
+function fetch_messages(channel) {
+
+    // Initialize new ajax request
+    const request = new XMLHttpRequest();
+    const name = document.querySelector('.channel.active').value;
+    request.open('POST', '/get_messages');
+
+    // Callback function for when request completes
+    request.onload = () => {
+
+        const data = JSON.parse(request.responseText);
+        if (data.success) {
+
+          const template = Handlebars.compile(document.querySelector('#messages').innerHTML);
+          const content = template({'messages': data.messages});
+
+          document.querySelector('#content-area').innerHTML = content;
+        }
+        else {
+             document.querySelector('#content-area').innerHTML = data.error;
+        }
+    }
+
+    // Add data to send with request
+    const data = new FormData();
+    data.append('channel', channel);
+
+    // Send request
+    request.send(data);
 };

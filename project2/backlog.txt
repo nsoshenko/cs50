@@ -1,3 +1,4 @@
+1st milestone leftovers:
 1. Favicon (minor)
 2. Channels page for mobile (major)
 3. Get channels list endpoint on page load (critical) DONE (implemented in jinja2 index.html)
@@ -8,3 +9,16 @@
 8. Created channels cannot be selected until F5 (blocker) DONE (put navigation into separate function and
 initialize it 2 times: on page load, after channel creation)
 9. Only 1st selected channel rerenders chat (blocker) DONE (commented remove(.empty))
+
+2 milestone plan:
+1. AJAX request for messages when opening channel DONE
+2. Message div manually before generation (to see if we need a template) DONE
+3. JS function for fetching messages DONE
+4. Virtual scroll
+
+2nd milestone leftovers:
+1. Handlebars template doesn't compile (blocker) DONE (innerHTML = content instead of append)
+2. Handlebars template doesn't see data from message objects (blocker) (author and contents in template instead of messages...)
+3. Factor out Handlebars template to a separate file (minor)
+4. Add time to messages
+

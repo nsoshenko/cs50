@@ -16,6 +16,18 @@ app.config["JSON_SORT_KEYS"] = False
 channels = []
 messages = []
 
+# Mock data for milestone 2
+c1 = Channel('default')
+channels.append(c1)
+m1 = Message(c1, 'Nikita Soshenko', 'Hi, guys!')
+m2 = Message(c1, 'Tony Stark', 'We are avengers!!!')
+m3 = Message(c1, 'Illidan Stormrage', 'Demons? Demons')
+m4 = Message(Channel('123'), 'Another user', 'Another channel')
+messages.append(m1)
+messages.append(m2)
+messages.append(m3)
+messages.append(m4)
+
 
 @app.route("/")
 def index():
@@ -41,6 +53,29 @@ def create_channel():
 
     # Prepare and send response
     return jsonify({"success": True, "channel": channels[-1].name})
+
+
+@app.route("/get_messages", methods=['POST'])
+def get_messages():
+    """Ajax endpoint for getting all messages from channel"""
+
+    # Get data from request
+    channel = request.form.get('channel').strip('#')
+    print(channel)
+    if not channel:
+        return jsonify({"success": False, "error": "No channel in request"})
+
+    # Search for messages in the channel
+    response = []
+    for message in messages:
+        if message.channel.name == channel:
+            response.append({"author": message.user, "time": message.time, "contents": message.text})
+
+    # Send response
+    if not response:
+        return jsonify({"success": False, "error": "No messages in this channel"})
+    else:
+        return jsonify({"success": True, "messages": response})
 
 
 @socketio.on("send message")
