@@ -86,6 +86,7 @@ function navigation() {
     });
 };
 
+// Get messages for the channel
 function fetch_messages(channel) {
 
     // Initialize new ajax request
@@ -116,3 +117,41 @@ function fetch_messages(channel) {
     // Send request
     request.send(data);
 };
+
+// Websockets
+document.addEventListener('DOMContentLoaded', () => {
+
+      // Connect to websocket
+      var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+
+      // When connected, configure buttons
+      socket.on('connect', () => {
+
+          document.querySelector('#sendMessage').onsubmit = () => {
+
+              // Prepare message data for sending
+              const message = document.querySelector('#sendMessageText').value;
+              const user = localStorage.getItem('username');
+              const channel = document.querySelector('.channel.active').innerHTML;
+
+              // Send data to socket
+              socket.emit('send message', {'message': message, 'user': user, 'channel': channel});
+              document.querySelector('#sendMessageText').value = '';
+              return false;
+          };
+      });
+
+      socket.on('announce message', data => {
+
+          // Check if message is for active channel
+          if (document.querySelector('.channel.active').innerHTML === `#${data.message.channel}`) {
+
+            // Compile Handlebars message template
+            const template = Handlebars.compile(document.querySelector('#messages').innerHTML);
+            const content = template({'messages': data});
+
+            // Add new message to the channel
+            document.querySelector('#content-area').innerHTML += content;
+          };
+      });
+});

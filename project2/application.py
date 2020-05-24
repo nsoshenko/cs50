@@ -69,7 +69,7 @@ def get_messages():
     response = []
     for message in messages:
         if message.channel.name == channel:
-            response.append({"author": message.user, "time": message.time, "contents": message.text})
+            response.append({"author": message.user, "time": str(message.time), "contents": message.text})
 
     # Send response
     if not response:
@@ -79,7 +79,21 @@ def get_messages():
 
 
 @socketio.on("send message")
-def send(data):
+def send_message(data):
     """Websocket method to send a message"""
 
-    return None
+    # Find a channel object with the passed name
+    for channel in channels:
+        if channel.name == data['channel'].strip('#'):
+            current = channel
+            break
+
+    # Store new message
+    message = Message(current, data['user'], data['message'])
+    messages.append(message)
+    print(message.channel.name, message.user, message.text)
+
+    # Announce new message to websockets
+    emit('announce message', {"message": {"channel": message.channel.name, "author": message.user,
+                                "time": str(message.time), "contents": message.text}}, broadcast=True)
+
