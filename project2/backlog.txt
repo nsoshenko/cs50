@@ -20,5 +20,6 @@ initialize it 2 times: on page load, after channel creation)
 1. Handlebars template doesn't compile (blocker) DONE (innerHTML = content instead of append)
 2. Handlebars template doesn't see data from message objects (blocker) (author and contents in template instead of messages...)
 3. Factor out Handlebars template to a separate file (minor)
-4. Add time to messages
+4. Prettify time on messages (major)
+5. Keep only 100 messages for channel (blocker)
 
