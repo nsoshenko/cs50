@@ -33,13 +33,14 @@ def create_channel():
         return jsonify({"success": False, "error": "No channel name detected"})
 
     # Update channels list in memory
-    if name in channels:
-        return jsonify({"success": False, "error": "This channel name is already in use"})
-    else:
-        channels.append(name)
+    for channel in channels:
+        if channel.name == name:
+            return jsonify({"success": False, "error": "This channel name is already in use"})
+    channel = Channel(name)
+    channels.append(channel)
 
     # Prepare and send response
-    return jsonify({"success": True, "channels": channels})
+    return jsonify({"success": True, "channel": channels[-1].name})
 
 
 @socketio.on("send message")

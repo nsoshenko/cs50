@@ -1,5 +1,10 @@
 1. Favicon (minor)
 2. Channels page for mobile (major)
-3. Get channels list endpoint on page load (critical)
-4. Suboptimal channels list refresh after creation in js (minor)
-5. Websocket for new channels
+3. Get channels list endpoint on page load (critical) DONE (implemented in jinja2 index.html)
+4. Suboptimal channels list refresh after creation in js (minor) DONE
+5. Websockets for new channels instead of Ajax (major)
+6. Use Channel class from models (minor) DONE
+7. Validation error if channel already exists (major)
+8. Created channels cannot be selected until F5 (blocker) DONE (put navigation into separate function and
+initialize it 2 times: on page load, after channel creation)
+9. Only 1st selected channel rerenders chat (blocker) DONE (commented remove(.empty))

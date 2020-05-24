@@ -21,6 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const username = document.querySelector('#usernameInput').value;
         localStorage.setItem('username', username);
     };
+
+// Initialize navigation for left menu
+document.addEventListener('DOMContentLoaded', navigation());
 });
 
 // Push username from localStorage to header
@@ -40,18 +43,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
            const data = JSON.parse(request.responseText);
            if (data.success) {
-                document.querySelector('#channelsList').innerHTML = '';
-                let channel;
-                for (channel of data.channels) {
-                  const div = document.createElement('div');
-                  div.className = 'channel';
-                  div.innerHTML = `#${channel}`;
-                  document.querySelector('#channelsList').append(div);
-                }
-                document.querySelector('#newChannel').value = '';
+               // Modify channels list
+               const div = document.createElement('div');
+               div.className = 'channel';
+               div.innerHTML = `#${data.channel}`;
+               document.querySelector('#channelsList').append(div);
+
+               // Empty the input field
+               document.querySelector('#newChannel').value = '';
+
+               // Reinitialize navigation for left menu
+               document.querySelector('DOMContentLoaded', navigation());
            }
            else {
-                document.querySelector('#channelsList').innerHTML = data.error;
+                // document.querySelector('#channelsList').innerHTML = data.error;
            }
        }
 
@@ -65,16 +70,16 @@ document.addEventListener('DOMContentLoaded', () => {
    };
 });
 
-// Channels list navigation
-document.addEventListener('DOMContentLoaded', () => {
+// Channels list navigation function
+function navigation() {
     document.querySelectorAll('.channel').forEach(channel => {
         channel.onclick = () => {
           document.querySelectorAll('.channel.active').forEach(channel => {
             channel.classList.remove('active');
           });
           channel.classList.add('active');
-          document.querySelector('.empty').remove();
-          document.querySelector('#content-area').append(channel.innerHTML);
+          // document.querySelector('.empty').remove();
+          document.querySelector('#content-area').innerHTML = channel.innerHTML;
         };
     });
-});
+};
