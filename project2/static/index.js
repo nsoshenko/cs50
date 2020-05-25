@@ -7,12 +7,31 @@ window.onload = () => {
         $('#nicknameModal').modal('toggle');
     };
 
-    // Load placeholder for chat
-    console.log("No active channel is selected!")
-    const div = document.createElement('div');
-    div.className = 'empty';
-    div.innerHTML = "No active channel is selected";
-    document.querySelector('#content-area').append(div);
+    if (!localStorage.getItem('active_channel')) {
+
+      // Load placeholder for chat
+      console.log("No active channel is selected!")
+      const div = document.createElement('div');
+      div.className = 'empty';
+      div.innerHTML = "No active channel is selected";
+      document.querySelector('#content-area').append(div);
+    }
+
+    else {
+
+      // Activate last channel from localStorage
+      const active = localStorage.getItem('active_channel');
+      console.log(active);
+
+      document.querySelectorAll('.channel').forEach(channel => {
+
+        if (channel.innerHTML === active) {
+          activateChannel(channel);
+        };
+      });
+    };
+
+
 };
 
 // Store username in localStorage
@@ -29,48 +48,6 @@ document.addEventListener('DOMContentLoaded', navigation());
 // Push username from localStorage to header
 document.querySelector('#usernameHeader').innerHTML = localStorage.getItem('username');
 
-// Ajax request for channel creation
-document.addEventListener('DOMContentLoaded', () => {
-   document.querySelector('#channelCreation').onsubmit = () => {
-
-       // Initialize new ajax request
-       const request = new XMLHttpRequest();
-       const name = document.querySelector('#newChannel').value;
-       request.open('POST', '/create_channel');
-
-       // Callback function for when request completes
-       request.onload = () => {
-
-           const data = JSON.parse(request.responseText);
-           if (data.success) {
-
-               // Modify channels list
-               const div = document.createElement('div');
-               div.className = 'channel';
-               div.innerHTML = `#${data.channel}`;
-               document.querySelector('#channelsList').append(div);
-
-               // Empty the input field
-               document.querySelector('#newChannel').value = '';
-
-               // Reinitialize navigation for left menu
-               document.querySelector('DOMContentLoaded', navigation());
-           }
-           else {
-                // document.querySelector('#channelsList').innerHTML = data.error;
-           }
-       }
-
-       // Add data to send with request
-       const data = new FormData();
-       data.append('name', name);
-
-       // Send request
-       request.send(data);
-       return false;
-   };
-});
-
 // Channels list navigation function
 function navigation() {
 
@@ -79,15 +56,13 @@ function navigation() {
           document.querySelectorAll('.channel.active').forEach(channel => {
             channel.classList.remove('active');
           });
-          channel.classList.add('active');
-          // document.querySelector('.empty').remove();
-          fetch_messages(channel.innerHTML);
+          activateChannel(channel);
         };
     });
 };
 
 // Get messages for the channel
-function fetch_messages(channel) {
+function fetchMessages(channel) {
 
     // Initialize new ajax request
     const request = new XMLHttpRequest();
@@ -139,6 +114,14 @@ document.addEventListener('DOMContentLoaded', () => {
               document.querySelector('#sendMessageText').value = '';
               return false;
           };
+
+          document.querySelector('#channelCreation').onsubmit = () => {
+
+            const channel = document.querySelector('#newChannel').value;
+            socket.emit('create channel', {'channel': channel});
+            document.querySelector('#newChannel').value = '';
+            return false;
+          };
       });
 
       socket.on('announce message', data => {
@@ -154,4 +137,39 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelector('#content-area').innerHTML += content;
           };
       });
+
+      socket.on('announce channel', data => {
+
+          // Modify channels list
+          const div = document.createElement('div');
+          div.className = 'channel';
+          div.innerHTML = `#${data.channel}`;
+          document.querySelector('#channelsList').append(div);
+
+          // Empty the input field
+          document.querySelector('#newChannel').value = '';
+
+          // Reinitialize navigation for left menu
+          document.querySelector('DOMContentLoaded', navigation());
+      });
 });
+
+// Submit messages on enter (textarea doesn't support by default)
+function submitOnEnter(event){
+    if(event.which === 13 && !event.shiftKey) {
+        event.target.form.dispatchEvent(new Event("submit", {cancelable: true}));
+        event.preventDefault();
+    }
+}
+
+document.querySelector("#sendMessageText").addEventListener("keypress", submitOnEnter);
+
+// Activate channel on click
+function activateChannel(channel) {
+
+    channel.classList.add('active');
+    // document.querySelector('.empty').remove();
+    fetchMessages(channel.innerHTML);
+    document.querySelector('#sendPanel').classList.remove('hidden');
+    localStorage.setItem('active_channel', channel.innerHTML);
+};

@@ -16,6 +16,7 @@ app.config["JSON_SORT_KEYS"] = False
 channels = []
 messages = []
 
+"""
 # Mock data for milestone 2
 c1 = Channel('default')
 channels.append(c1)
@@ -27,7 +28,13 @@ messages.append(m1)
 messages.append(m2)
 messages.append(m3)
 messages.append(m4)
+"""
 
+# Mock data for 100 messages per channel restriction
+c1 = Channel('default')
+channels.append(c1)
+for i in range(99):
+    messages.append(Message(c1, 'Nikita Soshenko', f'{i+1}'))
 
 @app.route("/")
 def index():
@@ -35,24 +42,22 @@ def index():
     return render_template("index.html", channels=channels)
 
 
-@app.route("/create_channel", methods=['POST'])
-def create_channel():
-    """Ajax endpoint for channel creation"""
+@socketio.on("create channel")
+def create_channel(data):
+    """Web socket support for channel creation"""
 
-    # Get data from request
-    name = request.form.get('name').rstrip().replace(' ', '-')
-    if not name:
-        return jsonify({"success": False, "error": "No channel name detected"})
+    # Get channel name
+    name = data['channel'].strip('#')
 
     # Update channels list in memory
     for channel in channels:
         if channel.name == name:
-            return jsonify({"success": False, "error": "This channel name is already in use"})
+            return
     channel = Channel(name)
     channels.append(channel)
 
-    # Prepare and send response
-    return jsonify({"success": True, "channel": channels[-1].name})
+    # Send response
+    emit('announce channel', {"channel": channels[-1].name}, broadcast=True)
 
 
 @app.route("/get_messages", methods=['POST'])
@@ -96,4 +101,5 @@ def send_message(data):
     # Announce new message to websockets
     emit('announce message', {"message": {"channel": message.channel.name, "author": message.user,
                                 "time": str(message.time), "contents": message.text}}, broadcast=True)
+
 
