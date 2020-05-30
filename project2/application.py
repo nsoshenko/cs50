@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import os
 
 from flask import Flask, render_template, request, redirect, session, jsonify
@@ -13,8 +15,8 @@ socketio = SocketIO(app)
 # https://flask.palletsprojects.com/en/1.1.x/config/#config
 app.config["JSON_SORT_KEYS"] = False
 
+messages = {}
 channels = []
-messages = []
 
 """
 # Mock data for milestone 2
@@ -33,8 +35,10 @@ messages.append(m4)
 # Mock data for 100 messages per channel restriction
 c1 = Channel('default')
 channels.append(c1)
+messages[c1.name] = []
 for i in range(99):
-    messages.append(Message(c1, 'Nikita Soshenko', f'{i+1}'))
+    messages[c1.name].append(Message(c1, 'Nikita Soshenko', f'{i+1}'))
+
 
 @app.route("/")
 def index():
@@ -47,14 +51,19 @@ def create_channel(data):
     """Web socket support for channel creation"""
 
     # Get channel name
-    name = data['channel'].strip('#')
+    name = data['channel'].strip('#').replace(' ', '-')[:24]
 
-    # Update channels list in memory
+    # Check if there is same channel in memory
     for channel in channels:
         if channel.name == name:
+            emit('channel creation error', {'channel': name, 'error': 'This channel already exists'},
+                 broadcast=True)
             return
+
+    # Update channel list in memory
     channel = Channel(name)
     channels.append(channel)
+    messages[channel.name] = []
 
     # Send response
     emit('announce channel', {"channel": channels[-1].name}, broadcast=True)
@@ -72,9 +81,10 @@ def get_messages():
 
     # Search for messages in the channel
     response = []
-    for message in messages:
-        if message.channel.name == channel:
-            response.append({"author": message.user, "time": str(message.time), "contents": message.text})
+    for message in messages[channel]:
+        response.append({"author": message.user, "date": message.time.strftime('%d.%m.%y'),
+                         "time": message.time.strftime('%H:%M:%S'),
+                         "contents": message.text})
 
     # Send response
     if not response:
@@ -93,13 +103,20 @@ def send_message(data):
             current = channel
             break
 
+    # Check for empty current if no channel found
+    # TBD
+
     # Store new message
     message = Message(current, data['user'], data['message'])
-    messages.append(message)
-    print(message.channel.name, message.user, message.text)
+    messages[current.name].append(message)
+
+    # Make sure to store only 100 messages per channel
+    for x in range(len(messages[current.name]) - 100):
+        del messages[current.name][0]
 
     # Announce new message to websockets
     emit('announce message', {"message": {"channel": message.channel.name, "author": message.user,
-                                "time": str(message.time), "contents": message.text}}, broadcast=True)
+                              "date": message.time.strftime('%d.%m.%y'), "time": message.time.strftime('%H:%M:%S'),
+                              "contents": message.text}}, broadcast=True)
 
 

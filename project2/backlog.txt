@@ -14,15 +14,14 @@ initialize it 2 times: on page load, after channel creation)
 1. AJAX request for messages when opening channel DONE
 2. Message div manually before generation (to see if we need a template) DONE
 3. JS function for fetching messages DONE
-4. Virtual scroll
 
 2nd milestone leftovers:
 1. Handlebars template doesn't compile (blocker) DONE (innerHTML = content instead of append)
-2. Handlebars template doesn't see data from message objects (blocker) (author and contents in template instead of messages...)
+2. Handlebars template doesn't see data from message objects (blocker) DONE (author and contents in template instead of messages...)
 3. Factor out Handlebars template to a separate file (minor)
-4. Prettify time on messages (major)
-5. Keep only 100 messages for channel (blocker)
-6. Multirow message is always in one row (major)
-7. Russian language support (major)
-8. Emit errors through websockets for unsuccessful channel creations (major)
+4. Prettify time on messages (major) (datetime.strftime())
+5. Keep only 100 messages for channel (blocker) DONE (architectural change of 2 lists for a dict of lists)
+6. Multirow message is always in one row (major) DONE (socketIO update)
+7. Russian language support (major) DONE (updated socketIO client to version2 in layout.html)
+8. Emit errors through websockets for unsuccessful channel creations (major) (DONE) (emit for separate error socket)
 

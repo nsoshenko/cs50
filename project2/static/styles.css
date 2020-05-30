@@ -17,3 +17,44 @@
 .hidden {
   display: none;
 }
+
+#left-menu {
+  padding-top: 20px;
+  overflow-y: scroll;
+  top: 0;
+  bottom: 0;
+  width: 20%;
+}
+
+#content {
+  margin-left: 25%;
+  width: 75%;
+}
+
+#content-area {
+  width: 100%;
+}
+
+#messageWrap {
+  margin: 8px 10px 8px 16px;
+}
+
+#messageAuthor {
+  display: inline-block;
+  color: #3a6d99;
+  font-weight: 600;
+}
+
+#messageTime {
+  color: #adadad;
+  font-size: .85em;
+}
+
+#messageContents {
+  line-height: 150%;
+  white-space: pre-wrap;
+}
+
+#sendPanel {
+  width: 83%;
+}

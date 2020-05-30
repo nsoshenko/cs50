@@ -99,14 +99,21 @@ document.addEventListener('DOMContentLoaded', () => {
       // Connect to websocket
       var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
 
-      // When connected, configure buttons
+      // When connected
       socket.on('connect', () => {
+
+          // Announce that user joined
+          const user = localStorage.getItem('username');
+          const greeting = document.createElement('div');
+          greeting.innerHTML = `${user} is online!`;
+          console.log(greeting.innerHTML);
+          greeting.classList.add('system-announcement');
+          // writeInChannel(greeting, handlebars=false);
 
           document.querySelector('#sendMessage').onsubmit = () => {
 
               // Prepare message data for sending
               const message = document.querySelector('#sendMessageText').value;
-              const user = localStorage.getItem('username');
               const channel = document.querySelector('.channel.active').innerHTML;
 
               // Send data to socket
@@ -134,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const content = template({'messages': data});
 
             // Add new message to the channel
-            document.querySelector('#content-area').innerHTML += content;
+            writeInChannel(content);
           };
       });
 
@@ -151,6 +158,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
           // Reinitialize navigation for left menu
           document.querySelector('DOMContentLoaded', navigation());
+      });
+
+      socket.on('channel creation error', data => {
+
+          console.error(data);
+      });
+
+      socket.on('disconnect', () => {
+
+        // Announce that user left
+        const user = localStorage.getItem('username');
+        const goodbye = document.createElement('div');
+        goodbye.innerHTML = `${user} gone offline!`;
+        console.log(goodbye.innerHTML);
+        goodbye.classList.add('system-announcement');
+        // writeInChannel(goodbye, handlebars=false);
       });
 });
 
@@ -172,4 +195,22 @@ function activateChannel(channel) {
     fetchMessages(channel.innerHTML);
     document.querySelector('#sendPanel').classList.remove('hidden');
     localStorage.setItem('active_channel', channel.innerHTML);
+};
+
+function writeInChannel(content, handlebars=true) {
+
+  // Add new message to the channel
+  let empty = 'No messages in this channel';
+
+  if (document.querySelector('#content-area').innerHTML === empty) {
+    document.querySelector('#content-area').innerHTML = content;
+  }
+  else {
+      if (handlebars) {
+          document.querySelector('#content-area').innerHTML += content;
+      }
+      else {
+          document.querySelector('#content-area').append(content);
+      };
+  };
 };

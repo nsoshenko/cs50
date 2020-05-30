@@ -4,15 +4,15 @@
     <script id="messages" type="text/template">
         {% raw -%}
             {{#each messages}}
-                <div class="row">
-                    <div class="col-9">{{ author }}</div>
-                    <div class="col-3">{{ time  }}</div>
+              <div id="messageWrap">
+                <div class="row mt-3">
+                    <div class="col-9" id="messageAuthor">{{ author }}</div>
+                    <div class="col-3" id="messageTime">{{ time  }}</div>
                 </div>
                 <div class="row">
-                    <div class="col">
-                        {{ contents }}
-                    </div>
+                    <div class="col" id="messageContents">{{ contents }}</div>
                 </div>
+              </div>
             {{/each}}
         {%- endraw %}
     </script>
@@ -20,7 +20,7 @@
 {% endblock %}
 
 {% block main %}
-    <main class="container">
+    <main class="container-fluid">
         <!-- Modal -->
         <div class="modal fade" tabindex="-1" role="dialog" id="nicknameModal" data-backdrop="static">
             <div class="modal-dialog" role="document">
@@ -42,26 +42,29 @@
                 </div>
             </div>
         </div>
-        <div class="row">
-            <!--Channels list-->
-            <div class="col-3" id="left-menu">
-                <label for="channelCreation">Create new channel</label>
-                <form class="form-inline my-4" id="channelCreation" action="/create_channel" method="post">
-                    <label class="sr-only" for="newChannel">New channel</label>
-                    <input class="form-control" type="text" id="newChannel"
-                           autocomplete="off" placeholder="Channel name" required>
-                    <button class="btn btn-success btn-sm ml-2">+</button>
-                </form>
-                <div id="channelsList" class="menu">
-                    {% for channel in channels %}
-                         <div class="channel">#{{ channel.name }}</div>
-                    {% endfor %}
+            <div class="row">
+              <!--Channels list-->
+              <div class="col-3 position-fixed" id="left-menu">
+                  <label for="channelCreation">Create new channel</label>
+                  <form class="form-inline my-4" id="channelCreation" action="/create_channel" method="post">
+                      <label class="sr-only" for="newChannel">New channel</label>
+                      <input class="form-control" type="text" id="newChannel"
+                             autocomplete="off" placeholder="Channel name" maxlength="24" required>
+                      <button class="btn btn-success btn-sm ml-2">+</button>
+                  </form>
+                  <div id="channelsList" class="menu">
+                      {% for channel in channels %}
+                           <div class="channel">#{{ channel.name }}</div>
+                      {% endfor %}
+                  </div>
+              </div>
+              <!--Channel-->
+              <div class="col-9" id="content">
+                <div class="row">
+                  <div id="content-area"></div>
                 </div>
-            </div>
-            <!--Channel-->
-            <div class="col-9">
-                <div id="content-area"></div>
-                <div id="sendPanel" class="hidden">
+                <div class="row">
+                  <div id="sendPanel" class="hidden">
                     <form id="sendMessage">
                         <div class="form-group">
                             <textarea class="form-control" rows="2"
@@ -69,8 +72,9 @@
                         </div>
                         <button class="btn btn-primary btn-sm" type="submit">SEND</button>
                     </form>
+                  </div>
                 </div>
+              </div>
             </div>
-        </div>
     </main>
 {% endblock %}
