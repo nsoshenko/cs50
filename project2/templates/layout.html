@@ -33,7 +33,10 @@
     </head>
 
     <body>
-        <nav class="navbar sticky-top navbar-light bg-light border">
+        <nav class="navbar sticky-top navbar-dark border">
+            <button class="navbar-toggler" id="leftMenuBtn" type="button">
+                <span class="navbar-toggler-icon"></span>
+            </button>
             <a class="navbar-brand" href="/">Flack</a>
             <h4 id="usernameHeader"></h4>
         </nav>
@@ -58,13 +61,13 @@
             </header>
         {% endif %}
 
-        {% block jumbo %} {% endblock %}
-
         {% block main %} {% endblock %}
 
+        <!--
         <footer class="small text-center text-muted my-4 fixed-bottom">
              Made by <a href="https://github.com/nsoshenko/cs50">Nikita Soshenko</a> 2020.
         </footer>
+        -->
 
     </body>
 

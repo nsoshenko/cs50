@@ -1,6 +1,6 @@
 1st milestone leftovers:
-1. Favicon (minor)
-2. Channels page for mobile (major)
+1. Favicon (minor) DONE
+2. Channels page for mobile (BLOCKER)
 3. Get channels list endpoint on page load (critical) DONE (implemented in jinja2 index.html)
 4. Suboptimal channels list refresh after creation in js (minor) DONE
 5. Websockets for new channels instead of Ajax (major) DONE
@@ -19,9 +19,24 @@ initialize it 2 times: on page load, after channel creation)
 1. Handlebars template doesn't compile (blocker) DONE (innerHTML = content instead of append)
 2. Handlebars template doesn't see data from message objects (blocker) DONE (author and contents in template instead of messages...)
 3. Factor out Handlebars template to a separate file (minor)
-4. Prettify time on messages (major) (datetime.strftime())
+4. Prettify time on messages (major) DONE (datetime.strftime())
 5. Keep only 100 messages for channel (blocker) DONE (architectural change of 2 lists for a dict of lists)
 6. Multirow message is always in one row (major) DONE (socketIO update)
 7. Russian language support (major) DONE (updated socketIO client to version2 in layout.html)
-8. Emit errors through websockets for unsuccessful channel creations (major) (DONE) (emit for separate error socket)
+8. Emit errors through websockets for unsuccessful channel creations (major) DONE (emit for separate error socket)
+9. Pretty layout (BLOCKER)
+10. Hamburger menu (Blocker)
+11. Auto scroll bug in activate_channel() (critical)
+12. New channel inline form layout bug (critical)
+13. SEND button to the right (major) DONE (class="text-right")
 
+3rd milestone
+1. Random themes functionality:
+- random color generator (DONE) (see randomColor() in index.js)
+- random primary color for the user in local storage (DONE) (window.onload() listener)
+- random secondary color
+- UI for generating new colors
+- different message author color depending on your theme
+2. Delete message (on hover?)
+3. File attachments to messages
+4. Private messaging

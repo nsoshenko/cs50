@@ -1,3 +1,7 @@
+.container-fluid {
+  min-height: 40rem;
+}
+
 .menu {
   justify-content: flex-start;
 }
@@ -18,43 +22,87 @@
   display: none;
 }
 
-#left-menu {
+#leftMenu {
   padding-top: 20px;
   overflow-y: scroll;
   top: 0;
   bottom: 0;
-  width: 20%;
+  width: 20%
 }
 
-#content {
-  margin-left: 25%;
-  width: 75%;
+#leftMenuBtn {
+    display: none;
 }
 
-#content-area {
-  width: 100%;
+#messagesRow {
+
+  height: 78vh;
+  overflow-y: scroll;
+  align-items: flex-end;
 }
 
-#messageWrap {
+#messagesDiv {
+
+  align-items: flex-end;
+  width: 95%;
+}
+
+.messageWrap {
   margin: 8px 10px 8px 16px;
 }
 
-#messageAuthor {
+.messageAuthor {
   display: inline-block;
   color: #3a6d99;
   font-weight: 600;
 }
 
-#messageTime {
+.messageTime {
   color: #adadad;
   font-size: .85em;
 }
 
-#messageContents {
+.messageContents {
   line-height: 150%;
   white-space: pre-wrap;
 }
 
+#sendRow {
+  width: inherit;
+}
+
 #sendPanel {
-  width: 83%;
+  width: inherit;
+}
+
+.delete {
+  font-weight: bold;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+
+    #leftMenuBtn {
+        display: block;
+    }
+
+    .navbar-brand {
+        display: none;
+    }
+
+    #leftMenu {
+        transform: translateX(-100%);
+    }
+
+    #leftMenuActive {
+        transform: translateX(0%);
+    }
+
+    .content_active {
+        transform: translateX(70%);
+    }
+
+    #leftMenu {
+        width: 70%;
+    }
 }

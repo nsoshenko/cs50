@@ -1,3 +1,5 @@
+scrolled = false;
+
 // Load initial web page
 window.onload = () => {
 
@@ -7,6 +9,13 @@ window.onload = () => {
         $('#nicknameModal').modal('toggle');
     };
 
+    if (!localStorage.getItem('primary-color')) {
+
+        localStorage.setItem('primary-color', randomColor());
+    };
+
+    document.querySelector('.navbar').style.background = localStorage.getItem('primary-color');
+
     if (!localStorage.getItem('active_channel')) {
 
       // Load placeholder for chat
@@ -14,7 +23,7 @@ window.onload = () => {
       const div = document.createElement('div');
       div.className = 'empty';
       div.innerHTML = "No active channel is selected";
-      document.querySelector('#content-area').append(div);
+      document.querySelector('#messagesDiv').append(div);
     }
 
     else {
@@ -30,8 +39,6 @@ window.onload = () => {
         };
       });
     };
-
-
 };
 
 // Store username in localStorage
@@ -55,6 +62,7 @@ function navigation() {
         channel.onclick = () => {
           document.querySelectorAll('.channel.active').forEach(channel => {
             channel.classList.remove('active');
+            channel.removeAttribute('style');
           });
           activateChannel(channel);
         };
@@ -78,10 +86,11 @@ function fetchMessages(channel) {
           const template = Handlebars.compile(document.querySelector('#messages').innerHTML);
           const content = template({'messages': data.messages});
 
-          document.querySelector('#content-area').innerHTML = content;
+          document.querySelector('#messagesDiv').innerHTML = content;
+          //listenerForDelete();
         }
         else {
-             document.querySelector('#content-area').innerHTML = data.error;
+             document.querySelector('#messagesDiv').innerHTML = data.error;
         }
     }
 
@@ -92,6 +101,91 @@ function fetchMessages(channel) {
     // Send request
     request.send(data);
 };
+
+
+// Submit messages on enter (textarea doesn't support by default)
+function submitOnEnter(event){
+    if(event.which === 13 && !event.shiftKey) {
+        event.target.form.dispatchEvent(new Event("submit", {cancelable: true}));
+        event.preventDefault();
+    }
+}
+
+document.querySelector("#sendMessageText").addEventListener("keypress", submitOnEnter);
+
+// Activate channel on click
+function activateChannel(channel) {
+
+    channel.classList.add('active');
+    channel.style.background = localStorage.getItem('primary-color');
+    // document.querySelector('.empty').remove();
+    fetchMessages(channel.innerHTML);
+    document.querySelector('#sendPanel').classList.remove('hidden');
+    localStorage.setItem('active_channel', channel.innerHTML);
+    scrolled = false;
+    updateScroll();
+};
+
+function writeInChannel(content, handlebars=true) {
+
+  // Add new message to the channel
+  const empty = 'No messages in this channel';
+
+  if (document.querySelector('#messagesDiv').innerHTML === empty) {
+    document.querySelector('#messagesDiv').innerHTML = content;
+  }
+  else {
+      if (handlebars) {
+          document.querySelector('#messagesDiv').innerHTML += content;
+      }
+      else {
+          document.querySelector('#messagesDiv').append(content);
+      };
+  };
+  updateScroll();
+  //listenerForDelete();
+};
+
+function randomColor() {
+
+    const hex = [0,1,2,3,4,5,6,7,8,9,'A','B','C','D','E','F'];
+    let color = '#';
+
+    for (i = 0; i < 6; i++) {
+      let random = Math.floor(Math.random()*hex.length);
+      color += hex[random];
+      console.log(color);
+    }
+
+    return color;
+};
+
+function updateScroll() {
+  if (!scrolled) {
+      let element = document.querySelector('#messagesRow');
+      element.scrollTop = element.scrollHeight;
+      console.log(`Update scroll to ${element.scrollTop}`);
+  };
+};
+
+document.querySelector('#messagesRow').addEventListener('wheel', () => {
+    let element = document.querySelector('#messagesRow');
+    if (element.scrollTop >= (element.scrollHeight - element.offsetHeight)) {
+        scrolled = false;
+    }
+    else {
+        scrolled = true;
+    };
+});
+
+document.querySelector('#leftMenuBtn').addEventListener('click', () => {
+    if (menu = document.querySelector('#leftMenu')) {
+        menu.id = 'leftMenuActive';
+    }
+    else if (menu = document.querySelector('#leftMenuActive')) {
+        menu.id = 'leftMenu';
+    };
+});
 
 // Websockets
 document.addEventListener('DOMContentLoaded', () => {
@@ -124,11 +218,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
           document.querySelector('#channelCreation').onsubmit = () => {
 
-            const channel = document.querySelector('#newChannel').value;
-            socket.emit('create channel', {'channel': channel});
-            document.querySelector('#newChannel').value = '';
-            return false;
+              const channel = document.querySelector('#newChannel').value;
+              socket.emit('create channel', {'channel': channel});
+              document.querySelector('#newChannel').value = '';
+              return false;
           };
+
+          document.querySelectorAll(".delete").forEach(del => {
+
+              del.onclick = function() {
+
+                // Prepare message data for sending
+                const id = del.dataset.id;
+                const channel = document.querySelector('.channel.active').dataset.name;
+
+                // Send data to socket
+                console.log(`Delete sent with id: ${id}`);
+                socket.emit('delete message', {'id': id, 'user': user,
+                                              'channel': channel});
+              };
+          });
       });
 
       socket.on('announce message', data => {
@@ -147,22 +256,37 @@ document.addEventListener('DOMContentLoaded', () => {
 
       socket.on('announce channel', data => {
 
-          // Modify channels list
-          const div = document.createElement('div');
-          div.className = 'channel';
-          div.innerHTML = `#${data.channel}`;
-          document.querySelector('#channelsList').append(div);
+          if (!data.success) {
+              console.error(data);
+          }
+          else {
 
-          // Empty the input field
-          document.querySelector('#newChannel').value = '';
+            // Modify channels list
+            const div = document.createElement('div');
+            div.className = 'channel';
+            div.innerHTML = `#${data.channel}`;
+            document.querySelector('#channelsList').append(div);
 
-          // Reinitialize navigation for left menu
-          document.querySelector('DOMContentLoaded', navigation());
+            // Empty the input field
+            document.querySelector('#newChannel').value = '';
+
+            // Reinitialize navigation for left menu
+            document.querySelector('DOMContentLoaded', navigation());
+          }
       });
 
-      socket.on('channel creation error', data => {
+      socket.on('delete message', data => {
 
-          console.error(data);
+          if (!data.success) {
+              console.error(data.error);
+          }
+          else {
+
+              const id = "m_" + data.id
+              // Remove message from the DOM
+              document.getElementById(id).remove();
+          };
+
       });
 
       socket.on('disconnect', () => {
@@ -176,41 +300,3 @@ document.addEventListener('DOMContentLoaded', () => {
         // writeInChannel(goodbye, handlebars=false);
       });
 });
-
-// Submit messages on enter (textarea doesn't support by default)
-function submitOnEnter(event){
-    if(event.which === 13 && !event.shiftKey) {
-        event.target.form.dispatchEvent(new Event("submit", {cancelable: true}));
-        event.preventDefault();
-    }
-}
-
-document.querySelector("#sendMessageText").addEventListener("keypress", submitOnEnter);
-
-// Activate channel on click
-function activateChannel(channel) {
-
-    channel.classList.add('active');
-    // document.querySelector('.empty').remove();
-    fetchMessages(channel.innerHTML);
-    document.querySelector('#sendPanel').classList.remove('hidden');
-    localStorage.setItem('active_channel', channel.innerHTML);
-};
-
-function writeInChannel(content, handlebars=true) {
-
-  // Add new message to the channel
-  let empty = 'No messages in this channel';
-
-  if (document.querySelector('#content-area').innerHTML === empty) {
-    document.querySelector('#content-area').innerHTML = content;
-  }
-  else {
-      if (handlebars) {
-          document.querySelector('#content-area').innerHTML += content;
-      }
-      else {
-          document.querySelector('#content-area').append(content);
-      };
-  };
-};

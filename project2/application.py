@@ -36,8 +36,9 @@ messages.append(m4)
 c1 = Channel('default')
 channels.append(c1)
 messages[c1.name] = []
-for i in range(99):
+for i in range(150):
     messages[c1.name].append(Message(c1, 'Nikita Soshenko', f'{i+1}'))
+messages['default'].append(Message(c1, 'medusa', '123'))  # mock for delete
 
 
 @app.route("/")
@@ -56,8 +57,8 @@ def create_channel(data):
     # Check if there is same channel in memory
     for channel in channels:
         if channel.name == name:
-            emit('channel creation error', {'channel': name, 'error': 'This channel already exists'},
-                 broadcast=True)
+            emit('announce channel', {'success': False, 'channel': name,
+                                      'error': 'This channel already exists'}, broadcast=True)
             return
 
     # Update channel list in memory
@@ -66,7 +67,7 @@ def create_channel(data):
     messages[channel.name] = []
 
     # Send response
-    emit('announce channel', {"channel": channels[-1].name}, broadcast=True)
+    emit('announce channel', {'success': True, 'channel': channels[-1].name}, broadcast=True)
 
 
 @app.route("/get_messages", methods=['POST'])
@@ -82,13 +83,14 @@ def get_messages():
     # Search for messages in the channel
     response = []
     for message in messages[channel]:
-        response.append({"author": message.user, "date": message.time.strftime('%d.%m.%y'),
+        response.append({"id": message.id, "author": message.user,
+                         "date": message.time.strftime('%d.%m.%y'),
                          "time": message.time.strftime('%H:%M:%S'),
                          "contents": message.text})
 
     # Send response
     if not response:
-        return jsonify({"success": False, "error": "No messages in this channel"})
+        return jsonify({"success": False, "error": "No messages in this channel yet"})
     else:
         return jsonify({"success": True, "messages": response})
 
@@ -115,8 +117,35 @@ def send_message(data):
         del messages[current.name][0]
 
     # Announce new message to websockets
-    emit('announce message', {"message": {"channel": message.channel.name, "author": message.user,
+    emit('announce message', {"message": {"id": message.id, "channel": message.channel.name, "author": message.user,
                               "date": message.time.strftime('%d.%m.%y'), "time": message.time.strftime('%H:%M:%S'),
                               "contents": message.text}}, broadcast=True)
 
+
+@socketio.on("delete message")
+def delete_message(data):
+    """Websocket method for deleting messages"""
+
+    # Find a channel object with the passed name
+    for channel in channels:
+        if channel.name == data['channel']:
+            current = channel
+            print(current.name)
+            print(messages[current.name][-1].text)
+            break
+
+    # Find and delete the message in channel
+    for message in messages[current.name]:
+
+        if message.id == int(data['id']):
+
+            if message.user == data['user']:
+                print(message.text)
+                del message
+                emit('delete message', {'success': True, 'id': data['id']}, broadcast=True)
+            else:
+                print("ERROR")
+                emit('delete message', {'success': False,
+                                        'error': "Trying to delete message of another user"}, broadcast=True)
+            break
 
