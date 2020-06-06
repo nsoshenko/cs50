@@ -1,0 +1,28 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Homepage
+{% endblock %}
+
+{% block jumbo %}
+    <div class="jumbotron jumbotron-fluid" id="homepageJumbo">
+        <div class="darken-overlay">
+            <div class="container left text-white">
+                <h1 class="display-4" id="homepageTitle">Bookshop</h1>
+                <p class="lead" id="homepageText">
+                    Find your favourite book and leave your review for it.
+                </p>
+                <form action="{{ url_for('search') }}" method="post">
+                    <div class="row mt-5" id="searchRow">
+                        <input name="query" type="text" autocomplete="off" autofocus class="form-control"
+                               id="searchInput" placeholder="ISBN, title or author...">
+                        <button class="btn btn-dark ml-3" type="submit">Search</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+</div>
+{% endblock %}
+
+{% block main %}
+{% endblock %}

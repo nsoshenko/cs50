@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Homepage
+{% endblock %}
+
+{% block main %}
+    <div class="row h3">
+        <div class="col">
+            <p class="text-left">{{ username }}</p>
+        </div>
+        <div class="col">
+            <p class="text-right">Balance: {{ balance | usd }}</p>
+        </div>
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Company name</th>
+                <th>Symbol</th>
+                <th>Amount</th>
+                <th>Price (per one)</th>
+                <th>Total</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in results %}
+                <tr>
+                    <td>{{ result["id"] }}</td>
+                    <td>{{ result["name"] }}</td>
+                    <td>{{ result["symbol"] }}</td>
+                    <td>{{ result["amount"] }}</td>
+                    <td>{{ result["price"] | usd }}</td>
+                    <td>{{ result["total"] | usd }}</td>
+                    <td>
+                        <form method="post">
+                            <div class="form-row">
+                                <input name="symbol" value="{{ result['symbol'] }}" style="display: none">
+                                <input name="shares" type="number" autocomplete="off" class="form-control" min=1 placeholder="Amount" style="width: 102px" required>
+                                <button class="btn btn-primary btn-sm ml-2" type="submit" formaction="/buy">Buy</button>
+                                <button class="btn btn-primary btn-sm ml-1" type="submit" formaction="/sell">Sell</button>
+                            </div>
+                        </form>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

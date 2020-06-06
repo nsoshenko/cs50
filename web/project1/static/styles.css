@@ -1,0 +1,69 @@
+main .form-control
+{
+    /* center form controls */
+    display: inline-block;
+}
+
+main .form-control .w-auto
+{
+    /* override bootstraps full width for forms */
+    width:auto
+}
+
+main
+{
+    /* scroll horizontally as needed */
+    overflow-x: auto;
+
+    /* center contents */
+    text-align: center;
+}
+
+main .left {
+    text-align: left;
+}
+
+main .right {
+    text-align: right;
+}
+
+.star {
+    fill-rule:nonzero;
+    fill:#FFD44D;
+}
+
+#homepageJumbo {
+    height: 570px;
+    background-image: url(../static/homepage-background.jpg);
+    background-size: cover;
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+.btn-dark {
+    border-color: white;
+}
+
+.darken-overlay {
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    padding-top: 160px;
+}
+
+#homepageTitle {
+    font-weight: normal;
+    margin-left: -5px;
+}
+
+#homepageText {
+    font-weight: unset;
+}
+
+#searchRow {
+    margin-left: 2px;
+}
+
+#searchInput {
+    width: 415px!important;
+}
