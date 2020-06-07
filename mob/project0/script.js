@@ -1,3 +1,4 @@
+// Variables for classes linkage
 const classNames = {
   TODO_ITEM: 'todo-container',
   TODO_CHECKBOX: 'todo-checkbox',
@@ -5,17 +6,20 @@ const classNames = {
   TODO_DELETE: 'todo-delete',
 }
 
+// Targeting elements
 const list = document.getElementById('todo-list')
 const itemCountSpan = document.getElementById('item-count')
 const uncheckedCountSpan = document.getElementById('unchecked-count')
-//let counter = 1
 
 function newTodo() {
+
+  // Get todo text
   const todo = prompt("Enter your TODO here:")
 
+  // Create container
   const li = render('li', 'TODO_ITEM', list)
-  //li.setAttribute('dataset-id', counter++)
 
+  // Create checkbox with listener
   const checkbox = render('input', 'TODO_CHECKBOX', li)
   checkbox.type = 'checkbox'
   checkbox.addEventListener('click', () => {
@@ -25,17 +29,19 @@ function newTodo() {
   const span = render('span', 'TODO_TEXT', li)
   span.innerHTML = todo
 
+  // Create delete button with listener
   const button = render('button', 'TODO_DELETE', li)
   button.innerHTML = 'DELETE'
   button.addEventListener('click', () => {
     deleteTodo(button, checkbox.checked)
   })
-  //button.setAttribute('onclick', 'deleteTodo(parentElement.data.id)')
 
+  // Update counters on adding
   itemCountSpan.innerHTML++
   uncheckedCountSpan.innerHTML++
 }
 
+// Update counters on toggling a checkbox
 function toggleTodo(checked) {
   console.log(checked)
   if (checked) {
@@ -46,6 +52,7 @@ function toggleTodo(checked) {
   }
 }
 
+// Delete todo and update counters
 function deleteTodo(button, checked) {
   button.parentElement.remove()
   itemCountSpan.innerHTML--
@@ -54,6 +61,7 @@ function deleteTodo(button, checked) {
   }
 }
 
+// Helper function for element creation to keep DRY
 function render(elementType, className, parent) {
   const temp = document.createElement(elementType)
   temp.classList.add(classNames[className])
